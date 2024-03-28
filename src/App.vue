@@ -3,6 +3,14 @@
 </template>
 
 <script setup>
+import readQrCode from "src/helpers/qr/qr";
+import testQrCode from "./Untitled.png";
+test();
+async function test() {
+  const test = await readQrCode(testQrCode);
+  console.log(test);
+}
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -15,12 +23,12 @@ const firebaseConfig = {
   projectId: "noodle-t6",
   storageBucket: "noodle-t6.appspot.com",
   messagingSenderId: "427139124965",
-  appId: "1:427139124965:web:0f3ca972889e350ebf8e0c"
+  appId: "1:427139124965:web:0f3ca972889e350ebf8e0c",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 defineOptions({
-  name: 'App'
+  name: "App",
 });
 </script>
