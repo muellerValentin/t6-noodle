@@ -1,15 +1,11 @@
 <template>
-  <router-view />
+  <qr-reader />
 </template>
 
 <script setup>
+import QrReader from "components/qr/QrReader.vue";
 import readQrCode from "src/helpers/qr/qr";
 import testQrCode from "./Untitled.png";
-test();
-async function test() {
-  const test = await readQrCode(testQrCode);
-  console.log(test);
-}
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";

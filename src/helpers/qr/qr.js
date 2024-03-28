@@ -30,21 +30,28 @@ function checkBrowserSupport() {
 
 /**
  * Function for reading a given qr code and returning its content as a json
- * @argument qrCode as an image
+ * @argument qrCode as an image, boolean for checking if qr code comes from a video stream
  * @returns qr code content as json
  * @author daniel
  */
-async function readQrCode(qrCode) {
+async function readQrCode(qrCode, isVideo) {
   try {
     const qrCodeDetector = createQrCodeDetector();
-    const qrCodeAsImageBitmap = await createImageBitmapFromQrCode(qrCode);
-    const qrCodes = await qrCodeDetector.detect(qrCodeAsImageBitmap);
-    if (qrCodes.length > 0) {
-      const qrCodeContent = qrCodes[0].rawValue;
-      return JSON.parse(qrCodeContent);
+    let qrCodes = null;
+    if (isVideo) {
+      qrCodes = await qrCodeDetector.detect(qrCode);
     } else {
-      console.log("No QR codes detected.");
-      return null;
+      const qrCodeAsImageBitmap = await createImageBitmapFromQrCode(qrCode);
+      qrCodes = await qrCodeDetector.detect(qrCodeAsImageBitmap);
+    }
+    if (qrCodes) {
+      if (qrCodes.length > 0) {
+        const qrCodeContent = qrCodes[0].rawValue;
+        return JSON.parse(qrCodeContent);
+      } else {
+        console.log("No QR codes detected.");
+        return null;
+      }
     }
   } catch (err) {
     console.error("Error detecting QR code:", err);
