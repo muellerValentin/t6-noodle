@@ -1,51 +1,51 @@
 <template>
   <q-page class="q-pa-md row justify-center items-center" style="height: 100vh">
     <div>
-      <qrcode-vue
-        ref="test"
-        :value="value"
-        :size="size"
-        level="H"
-        render-as="canvas"
-      />
-      <br />
-      <button @click="downloadQrCodeAsJpeg">Test</button>
+      <qrcode-vue :value="value" :size="size" level="H" render-as="canvas" />
     </div>
+    <q-btn
+      unelevated
+      rounded
+      v-if="canShareFile"
+      icon="share"
+      color="purple"
+      label="QR-Code teilen"
+      @click="shareQrCode"
+      style="width: 100%"
+    />
   </q-page>
 </template>
 
 <script setup>
 import QrcodeVue from "qrcode.vue";
 import { onMounted, ref } from "vue";
-const value = ref("test");
+const value = ref(null);
 const size = ref(300);
+const canShareFile = ref(false);
+
 setUsersInfoToQrCode("test");
-const test = ref();
-let blob;
-onMounted(() => {});
+onMounted(() => {
+  canShareFile.value =
+    navigator.canShare && navigator.canShare({ files: [new File([], "")] });
+});
 
 function canvasToJpegBlob(canvas, quality, callback) {
   canvas.toBlob(callback, "image/jpeg", quality);
 }
 
-async function downloadQrCodeAsJpeg() {
+async function shareQrCode() {
   canvasToJpegBlob(document.querySelector("canvas"), 0.75, async (blob) => {
+    const file = new File([blob], "qrcode.jpg", { type: "image/jpeg" });
     try {
-      const fileHandle = await window.showSaveFilePicker({
-        types: [
-          {
-            description: "JPEG Image",
-            accept: { "image/jpeg": [".jpg"] },
-          },
-        ],
+      await navigator.share({
+        files: [file],
+        title: "QR-Code",
+        text: "Dein QR-Code zur Registrierung",
       });
-      const writable = await fileHandle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-      alert("QR code saved successfully as JPEG.");
+      console.log("QR code shared successfully.");
     } catch (err) {
-      console.error("Error saving the file:", err);
-      alert("Failed to save the file.");
+      console.error("Error sharing the file:", err);
+      alert("Failed to share the file.");
     }
   });
 }
