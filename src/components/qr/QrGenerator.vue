@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md row justify-center items-center" style="height: 100vh">
+  <q-page class="q-pa-md row justify-center items-center" style="">
     <div>
       <qrcode-vue :value="value" :size="size" level="H" render-as="canvas" />
     </div>
