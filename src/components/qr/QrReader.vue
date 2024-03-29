@@ -1,8 +1,5 @@
 <template>
-  <div class="q-pa-md q-gutter-sm">
-    <video ref="videoStream" width="100%" height="40%" autoplay></video>
-    <q-btn color="purple" label="Purple" />
-  </div>
+  <video ref="videoStream" width="100%" height="40%" autoplay></video>
 </template>
 
 <script setup>
