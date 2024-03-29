@@ -6,6 +6,7 @@ import { sha512 } from "js-sha512";
 
 /**
  * This functions hash a given string with sha512
+ * Mainly used for generating the id, which is name + password
  * @argument string to be hashed
  * @returns hashed string
  * @author daniel
