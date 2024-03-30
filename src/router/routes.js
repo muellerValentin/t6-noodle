@@ -19,6 +19,12 @@ const routes = [
 
     // Diese Route verwendet nicht das MainLayout, wodurch die Registrierungsseite ein eigenständiges Layout hat.
   },
+  {
+    path: "/login",
+    component: () => import("components/login/LoginView.vue"),
+
+    // Diese Route verwendet nicht das MainLayout, wodurch die Registrierungsseite ein eigenständiges Layout hat.
+  },
 
   // Always leave this as last one,
   // but you can also remove it

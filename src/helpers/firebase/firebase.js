@@ -3,7 +3,7 @@
  * @author daniel
  */
 import { initializeApp } from "firebase/app";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 
 const db = getFirestore(firebaseInit());
@@ -35,4 +35,19 @@ async function addUser(id, passwordHash, role) {
   });
 }
 
-export default addUser;
+async function userLogin(id, hashedPassword) {
+  const docRef = doc(getFirestore(firebaseInit()), "users", id);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    if (data.verified === true && data.password === hashedPassword) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
+export { addUser, userLogin };

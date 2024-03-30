@@ -129,7 +129,7 @@
 </template>
 <script setup>
 import { ref } from "vue";
-import addUser from "src/helpers/firebase/firebase.js";
+import { addUser } from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
 import QrGenerator from "../qr/QrGenerator.vue";
 const dataPassedToFirebase = ref(localStorage.getItem("dataPassedToFirebase"));
