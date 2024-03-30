@@ -88,6 +88,23 @@
             :label="checkbox.label"
           />
         </div>
+        <div v-if="role === 3" class="q-gutter-sm q-mt-md">
+          <q-input
+            class="q-mt-sm"
+            label="Master-Passwort"
+            v-model="masterPassword"
+            filled
+            :type="isPwd ? 'password' : 'text'"
+          >
+            <template v-slot:append>
+              <q-icon
+                :name="isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
+            </template>
+          </q-input>
+        </div>
 
         <q-stepper-navigation>
           <q-btn
@@ -105,7 +122,7 @@
         </q-stepper-navigation>
       </q-step>
 
-      <q-step :name="4" title="QR-Code" icon="qr_code">
+      <q-step v-if="role !== 3" :name="4" title="QR-Code" icon="qr_code">
         Diesen QR-Code müssen Sie zum Abschluss der Registrierung im Sekretariat
         vorzeigen.
 
@@ -137,6 +154,7 @@ const step = ref(+localStorage.getItem("step") || 1);
 const forename = ref(localStorage.getItem("forname"));
 const lastname = ref(localStorage.getItem("lastname"));
 const password = ref(localStorage.getItem("password"));
+const masterPassword = ref();
 const isPwd = ref(true);
 const role = ref(+localStorage.getItem("role"));
 const year = ref(localStorage.getItem("year"));
@@ -176,6 +194,10 @@ function getYears() {
 }
 
 function getDataFromClient() {
+  if (role.value === 3) {
+    //Sekretariat
+  } else {
+  }
   localStorage.setItem("forname", forename.value);
   localStorage.setItem("lastname", lastname.value);
   localStorage.setItem("password", password.value);
