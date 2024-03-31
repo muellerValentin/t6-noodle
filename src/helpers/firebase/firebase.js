@@ -60,13 +60,19 @@ async function userLogin(id, hashedPassword) {
   }
 }
 
+/**
+ * Getting the "attendence list" from Firebase
+ * @param {Date} startDate
+ * @param {Date} endDate
+ * @author daniel
+ */
 async function getCheckIns(startDate, endDate) {
   const attendenceCollection = collection(
     getFirestore(firebaseInit()),
     "attendence"
   );
   const q = query(
-    collection(getFirestore(firebaseInit()), "attendence"),
+    attendenceCollection,
     where("checkInTime", ">=", Timestamp.fromDate(startDate)),
     where("checkInTime", "<=", Timestamp.fromDate(endDate))
   );
