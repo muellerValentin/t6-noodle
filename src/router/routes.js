@@ -4,6 +4,10 @@ const routes = [
     component: () => import("layouts/MainLayout.vue"),
     children: [
       { path: "", component: () => import("pages/IndexPage.vue") },
+      {
+        path: "/qr-test",
+        component: () => import("components/qr/QrReader.vue"),
+      },
       // Entfernen Sie die Registrierung von den Kinderrouten des MainLayout
     ],
   },
