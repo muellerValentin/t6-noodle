@@ -1,10 +1,5 @@
 <template>
   <router-view />
-
-  <!-- NFC check -->
-  <button :class="{ supported: nfcSupported, 'not-supported': !nfcSupported }">
-    NFC Check
-  </button>
 </template>
 
 <script setup>
