@@ -3,6 +3,7 @@
  * @author daniel
  */
 import { initializeApp } from "firebase/app";
+import file from "./test.json";
 import {
   setDoc,
   getDocs,
@@ -67,6 +68,9 @@ async function userLogin(id, hashedPassword) {
  * @author daniel
  */
 async function getCheckIns(startDate, endDate) {
+  let mappingJson = file;
+  let rows = new Array();
+
   const attendenceCollection = collection(
     getFirestore(firebaseInit()),
     "attendence"
@@ -78,8 +82,20 @@ async function getCheckIns(startDate, endDate) {
   );
   const querySnapshot = await getDocs(q);
   querySnapshot.forEach((doc) => {
-    console.log(doc.data());
+    for (let student of mappingJson) {
+      if (student.serialNo === doc.data().serialNo) {
+        rows.push({
+          forename: student.forename,
+          lastname: student.lastname,
+          course: student.course,
+          checkIn: new Date(
+            doc.data().checkInTime.seconds * 1000
+          ).toLocaleString("DE"),
+        });
+      }
+    }
   });
+  return rows;
 }
 
 export { addUser, userLogin, getCheckIns };
