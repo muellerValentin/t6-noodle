@@ -1,29 +1,30 @@
 <template>
-  <q-page class="q-pa-md row justify-center items-center" style="">
+  <div class="q-pa-md row justify-center items-center">
     <div>
       <qrcode-vue :value="value" :size="size" level="H" render-as="canvas" />
     </div>
     <q-btn
-      unelevated
-      rounded
+      class="q-mt-sm"
       v-if="canShareFile"
       icon="share"
-      color="purple"
+      color="primary"
       label="QR-Code teilen"
       @click="shareQrCode"
       style="width: 100%"
     />
-  </q-page>
+  </div>
 </template>
 
 <script setup>
 import QrcodeVue from "qrcode.vue";
 import { onMounted, ref } from "vue";
-const value = ref(null);
-const size = ref(300);
+const props = defineProps({
+  qrCodeContent: String,
+});
+const value = ref(props.qrCodeContent);
+const size = ref(200);
 const canShareFile = ref(false);
 
-setUsersInfoToQrCode("test");
 onMounted(() => {
   canShareFile.value =
     navigator.canShare && navigator.canShare({ files: [new File([], "")] });
@@ -48,9 +49,5 @@ async function shareQrCode() {
       alert("Failed to share the file.");
     }
   });
-}
-
-function setUsersInfoToQrCode(usersInfoForQrCode) {
-  value.value = usersInfoForQrCode;
 }
 </script>
