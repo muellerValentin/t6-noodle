@@ -33,7 +33,7 @@
           label="Registrierung bestätigen"
           color="primary"
           v-close-popup
-          @click="confirmRegistration"
+          @click="toggleRegistration"
         />
       </q-card-actions>
     </q-card>
@@ -42,6 +42,7 @@
 
 <script setup>
 import readQrCode from "src/helpers/qr/qr";
+import { confirmRegistration } from "src/helpers/firebase/firebase.js";
 import { onMounted, ref } from "vue";
 
 const videoStream = ref(null);
@@ -82,8 +83,20 @@ async function toggleVideo() {
   videoPlaying.value = !videoPlaying.value;
 }
 
-function confirmRegistration() {
+/*
+function toggleRegistration() {
   console.log("Registrierung bestätigt");
+
+} */
+
+async function toggleRegistration() {
+  const id = qrContent.value.id;
+  try {
+    await confirmRegistration(id);
+    console.log("Registrierung bestätigt");
+  } catch (error) {
+    console.error("Fehler bei der Bestätigung der Registrierung:", error);
+  }
 }
 </script>
 

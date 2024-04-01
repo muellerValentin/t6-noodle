@@ -50,4 +50,21 @@ async function userLogin(id, hashedPassword) {
   }
 }
 
-export { addUser, userLogin };
+// Confirm Registration
+async function confirmRegistration(id) {
+  const docRef = doc(getFirestore(firebaseInit()), "users", id);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    if (data.verified === false) {
+      await updateDoc(docRef, { verified: true });
+    } else {
+      throw new Error("User is already verified");
+    }
+  } else {
+    throw new Error("User does not exist");
+  }
+}
+
+export { addUser, userLogin, confirmRegistration };
