@@ -18,8 +18,6 @@
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <!-- NFC check -->
-
       <q-list>
         <q-item-label header> Essential Links </q-item-label>
 
