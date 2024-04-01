@@ -2,6 +2,8 @@
 .thumbs.db
 node_modules
 
+*.cache
+
 # Quasar core related directories
 .quasar
 /dist
