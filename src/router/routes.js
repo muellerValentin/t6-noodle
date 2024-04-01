@@ -25,8 +25,13 @@ const routes = [
 
     // Diese Route verwendet nicht das MainLayout, wodurch die Registrierungsseite ein eigenständiges Layout hat.
   },
+  {
+    path: "/qr-test",
+    component: () => import("components/qr/QrReader.vue"),
+  },
 
-  // Always leave this as last one,
+  // Always leave this as last one,firebase deploy
+
   // but you can also remove it
   {
     path: "/:catchAll(.*)*",

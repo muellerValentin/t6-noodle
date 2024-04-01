@@ -48,6 +48,7 @@ async function readQrCode(qrCode, isVideo) {
       if (qrCodes.length > 0) {
         const qrCodeContent = qrCodes[0].rawValue;
         return JSON.parse(qrCodeContent);
+        //return qrCodeContent;
       } else {
         console.log("No QR codes detected.");
         return null;

@@ -52,7 +52,14 @@
         <q-option-group v-model="role" :options="options" color="primary" />
 
         <q-stepper-navigation>
-          <q-btn @click="step = 3" color="primary" label="Weiter" />
+          <q-btn
+            v-if="role === 1"
+            @click="step = 3"
+            color="primary"
+            label="Weiter"
+          />
+          <q-btn v-else @click="step = 4" color="primary" label="Weiter" />
+
           <q-btn
             flat
             @click="step = 1"
@@ -63,11 +70,72 @@
         </q-stepper-navigation>
       </q-step>
 
+      <!-- v-if="role === 1 && nfcSupported" -->
       <q-step
+        v-if="role === 1"
         :name="3"
+        title="Studierendenausweis einscannen"
+        icon="nfc"
+        :done="step > 3"
+      >
+        <p>Scannen Sie ihren Studierendenausweis per NFC ein:</p>
+
+        <q-btn
+          label="NFC-Scan"
+          :class="{ supported: nfcSupported, 'not-supported': !nfcSupported }"
+          @click="openDialog"
+        />
+
+        <q-dialog v-model="dialogOpen">
+          <q-card>
+            <q-card-section class="row items-center">
+              <q-avatar icon="nfc" color="primary" text-color="white" />
+              <span class="q-ml-sm">{{ dialogMessage }}</span>
+            </q-card-section>
+
+            <q-card-actions align="right">
+              <q-btn flat label="Cancel" color="primary" v-close-popup />
+              <q-btn
+                flat
+                label="Turn on NFC"
+                color="primary"
+                v-if="nfcSupported"
+                v-close-popup
+              />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+
+        <q-dialog v-model="scanDialogOpen">
+          <q-card>
+            <q-card-section class="row items-center">
+              <q-avatar icon="nfc" color="primary" text-color="white" />
+              <span class="q-ml-sm">{{ scanContent }}</span>
+            </q-card-section>
+
+            <q-card-actions align="right">
+              <q-btn flat label="Close" color="primary" v-close-popup />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+
+        <q-stepper-navigation>
+          <q-btn @click="step = 4" color="primary" label="Weiter" />
+          <q-btn
+            flat
+            @click="step = 2"
+            color="primary"
+            label="Zurück"
+            class="q-ml-sm"
+          />
+        </q-stepper-navigation>
+      </q-step>
+
+      <q-step
+        :name="4"
         title="Spezifische Informationen"
         icon="assignment"
-        :done="step > 3"
+        :done="step > 4"
       >
         Bitte geben Sie hier die geforderten spezifischen Informationen an und
         übermitteln Sie Ihre Daten im Anschluss.
@@ -122,7 +190,7 @@
         </q-stepper-navigation>
       </q-step>
 
-      <q-step v-if="role !== 3" :name="4" title="QR-Code" icon="qr_code">
+      <q-step v-if="role !== 3" :name="5" title="QR-Code" icon="qr_code">
         Diesen QR-Code müssen Sie zum Abschluss der Registrierung im Sekretariat
         vorzeigen.
 
@@ -134,7 +202,7 @@
           <q-btn color="primary" label="Finish" />
           <q-btn
             flat
-            @click="step = 3"
+            @click="step = 4"
             color="primary"
             label="Back"
             class="q-ml-sm"
@@ -145,7 +213,7 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { addUser } from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
 import QrGenerator from "../qr/QrGenerator.vue";
@@ -178,6 +246,46 @@ const options = [
     value: 3,
   },
 ];
+
+// NFC
+const nfcSupported = ref(false);
+const dialogOpen = ref(false);
+const dialogMessage = ref("");
+const scanDialogOpen = ref(false);
+const scanContent = ref("");
+
+const serialNumber = ref(localStorage.getItem("serialNumber"));
+
+let reader;
+
+onMounted(() => {
+  if ("NDEFReader" in window) {
+    nfcSupported.value = true;
+    reader = new NDEFReader();
+  }
+});
+
+async function openDialog() {
+  dialogMessage.value = nfcSupported.value
+    ? "Start NFC-Scan"
+    : "Your device does not support a NFC-Scan!";
+  dialogOpen.value = true;
+
+  if (nfcSupported.value) {
+    try {
+      await reader.scan();
+      reader.onreading = ({ serialNumber: readSerialNumber }) => {
+        scanContent.value = `Seriennummer: ${readSerialNumber}`;
+        serialNumber.value = `${readSerialNumber}`;
+        scanDialogOpen.value = true;
+      };
+    } catch (error) {
+      console.log("Error: " + error);
+    }
+  }
+}
+
+// Jahrgangsauswahl / Spezifische Informationen
 console.log(getYears());
 
 /**
@@ -202,14 +310,32 @@ function getDataFromClient() {
   localStorage.setItem("lastname", lastname.value);
   localStorage.setItem("password", password.value);
   localStorage.setItem("role", role.value);
+  localStorage.setItem("serialNumber", serialNumber.value);
   localStorage.setItem("year", year.value);
   const id = hashString(forename.value + lastname.value + password.value);
   addUser(id, hashString(password.value), hashString(role.value.toString()));
   dataPassedToFirebase.value = true;
-  dataForQrCode.value = forename.value + lastname.value + role.value + id;
+  dataForQrCode.value = `{
+  "forename": "${forename.value}",
+  "lastname": "${lastname.value}",
+  "role": ${role.value},
+  "course": "${year.value}",
+  "serialNumber": "${serialNumber.value}",
+  "id": "${id}"
+}`;
   localStorage.setItem("dataPassedToFirebase", dataPassedToFirebase.value);
   localStorage.setItem("dataForQrCode", dataForQrCode.value);
-  step.value = 4;
+  step.value = 5;
   localStorage.setItem("step", step.value);
 }
 </script>
+
+<style scoped>
+.supported {
+  background-color: green;
+}
+
+.not-supported {
+  background-color: red;
+}
+</style>

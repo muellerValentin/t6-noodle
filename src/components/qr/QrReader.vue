@@ -23,5 +23,5 @@ async function detectCode() {
   const test = await readQrCode(videoStream.value, true);
   console.log(test);
 }
-//setInterval(detectCode, 1000);
+setInterval(detectCode, 1000);
 </script>
