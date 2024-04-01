@@ -24,7 +24,11 @@
         />
 
         <q-stepper-navigation>
-          <q-btn @click="step = 3" color="primary" label="Weiter" />
+          <q-btn
+            @click="getAttendenceListFromFirestore"
+            color="primary"
+            label="Weiter"
+          />
           <q-btn
             flat
             @click="step = 1"
@@ -44,7 +48,20 @@
         Bitte überprüfen Sie die Anwesenheiten und bestätigen Sie mit einem
         Klick auf Abschluss.
         <div class="q-mt-sm">
-          <q-table :rows="rows" :columns="columns" row-key="name" />
+          <q-table
+            :rows="rows"
+            :columns="columns"
+            title="Anwesend"
+            row-key="name"
+          />
+        </div>
+        <div class="q-mt-sm">
+          <q-table
+            :rows="notPresentRows"
+            :columns="notPresentColumns"
+            title="Nicht Anwesend"
+            row-key="name"
+          />
         </div>
 
         <q-stepper-navigation>
@@ -66,14 +83,19 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref } from "vue";
+import hashString from "src/helpers/hashing/hashing.js";
 import { getCheckIns } from "src/helpers/firebase/firebase.js";
+import { getYears } from "src/helpers/util.js";
+const years = getYears().map((year) => `ON${year}`);
+const year = ref();
 const step = ref(1);
-
-const columns = [
+const date = ref();
+const notPresentRows = ref();
+const notPresentColumns = [
   {
-    name: "forname",
+    name: "forename",
     required: true,
     label: "Vorname",
     align: "left",
@@ -87,26 +109,43 @@ const columns = [
     field: "lastname",
     sortable: true,
   },
-  { name: "course", label: "Kurs", field: "course", sortable: true },
+];
+const columns = [
+  {
+    name: "forename",
+    required: true,
+    label: "Vorname",
+    align: "left",
+    field: "forename",
+    sortable: true,
+  },
+  {
+    name: "lastname",
+    align: "left",
+    label: "Nachname",
+    field: "lastname",
+    sortable: true,
+  },
   { name: "checkIn", label: "Check-In", field: "checkIn", sortable: true },
 ];
 const rows = ref();
-test();
 
-async function test() {
+async function getAttendenceListFromFirestore() {
+  const dateForQuery = date.value.replaceAll("/", "-");
   rows.value = await getCheckIns(
-    new Date("2024-04-02T00:00:00.000Z"),
-    new Date("2024-04-02T23:59:59.999Z")
-  );
+    new Date(dateForQuery + "T00:00:00.000Z"),
+    new Date(dateForQuery + "T23:59:59.999Z"),
+    hashString(year.value)
+  ).then((result) => {
+    return result.presentStudents;
+  });
+  notPresentRows.value = await getCheckIns(
+    new Date(dateForQuery + "T00:00:00.000Z"),
+    new Date(dateForQuery + "T23:59:59.999Z"),
+    hashString(year.value)
+  ).then((result) => {
+    return result.notPresentStudents;
+  });
+  step.value = 3;
 }
-
-export default {
-  setup() {
-    return {
-      step,
-      columns,
-      rows,
-    };
-  },
-};
 </script>

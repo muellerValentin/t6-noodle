@@ -8,10 +8,7 @@ import { initializeApp } from "firebase/app";
 import { getCheckIns } from "./helpers/firebase/firebase";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-getCheckIns(
-  new Date("2024-04-02T00:00:00.000Z"),
-  new Date("2024-04-02T23:59:59.999Z")
-);
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCupHhjqvoXWDZwTv1Aa_xZY9MVrWmiH_U",

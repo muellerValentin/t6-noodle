@@ -67,9 +67,10 @@ async function userLogin(id, hashedPassword) {
  * @param {Date} endDate
  * @author daniel
  */
-async function getCheckIns(startDate, endDate) {
-  let mappingJson = file;
-  let rows = new Array();
+async function getCheckIns(startDate, endDate, course) {
+  let mappingJson = file; // Angenommen, dies enthält alle Studierenden
+  let presentStudents = [];
+  let notPresentStudents = [];
 
   const attendenceCollection = collection(
     getFirestore(firebaseInit()),
@@ -78,24 +79,37 @@ async function getCheckIns(startDate, endDate) {
   const q = query(
     attendenceCollection,
     where("checkInTime", ">=", Timestamp.fromDate(startDate)),
-    where("checkInTime", "<=", Timestamp.fromDate(endDate))
+    where("checkInTime", "<=", Timestamp.fromDate(endDate)),
+    where("course", "==", course)
   );
   const querySnapshot = await getDocs(q);
+  let presentSerialNos = [];
   querySnapshot.forEach((doc) => {
-    for (let student of mappingJson) {
-      if (student.serialNo === doc.data().serialNo) {
-        rows.push({
-          forename: student.forename,
-          lastname: student.lastname,
-          course: student.course,
-          checkIn: new Date(
-            doc.data().checkInTime.seconds * 1000
-          ).toLocaleString("DE"),
-        });
-      }
+    presentSerialNos.push(doc.data().serialNo);
+    let student = mappingJson.find((s) => s.serialNo === doc.data().serialNo);
+    if (student) {
+      presentStudents.push({
+        forename: student.forename,
+        lastname: student.lastname,
+        checkIn: new Date(doc.data().checkInTime.seconds * 1000).toLocaleString(
+          "DE"
+        ),
+      });
     }
   });
-  return rows;
+  mappingJson.forEach((student) => {
+    if (
+      student.course === course &&
+      !presentSerialNos.includes(student.serialNo)
+    ) {
+      notPresentStudents.push({
+        forename: student.forename,
+        lastname: student.lastname,
+      });
+    }
+  });
+
+  return { presentStudents, notPresentStudents };
 }
 
 export { addUser, userLogin, getCheckIns };
