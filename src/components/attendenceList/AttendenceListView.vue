@@ -1,17 +1,75 @@
 <template>
   <div class="q-pa-md">
-    <q-table
-      title="Anwesenheitsliste"
-      :rows="rows"
-      :columns="columns"
-      row-key="name"
-    />
+    <q-stepper v-model="step" vertical color="primary" animated>
+      <q-step :name="1" title="Datum angeben" icon="settings" :done="step > 1">
+        Wählen Sie das Datum, an dem Sie die Anwesenheiten kontrollieren
+        möchten.
+        <div class="q-mt-sm row items-start">
+          <q-date v-model="date" minimal />
+        </div>
+        <q-stepper-navigation>
+          <q-btn @click="step = 2" color="primary" label="Weiter" />
+        </q-stepper-navigation>
+      </q-step>
+
+      <q-step :name="2" title="Kurs wählen" icon="groups" :done="step > 2">
+        Wählen Sie den Kurs aus.
+
+        <q-select
+          class="q-mt-sm"
+          filled
+          v-model="year"
+          :options="years"
+          label="Jahrgang"
+        />
+
+        <q-stepper-navigation>
+          <q-btn @click="step = 3" color="primary" label="Weiter" />
+          <q-btn
+            flat
+            @click="step = 1"
+            color="primary"
+            label="Zurück"
+            class="q-ml-sm"
+          />
+        </q-stepper-navigation>
+      </q-step>
+
+      <q-step
+        :name="3"
+        title="Anwesenheit kontrollieren"
+        icon="check_box"
+        :done="step > 3"
+      >
+        Bitte überprüfen Sie die Anwesenheiten und bestätigen Sie mit einem
+        Klick auf Abschluss.
+        <div class="q-mt-sm">
+          <q-table :rows="rows" :columns="columns" row-key="name" />
+        </div>
+
+        <q-stepper-navigation>
+          <q-btn
+            @click="getDataFromClient"
+            color="primary"
+            label="Übermitteln"
+          />
+          <q-btn
+            flat
+            @click="step = 2"
+            color="primary"
+            label="Zurück"
+            class="q-ml-sm"
+          />
+        </q-stepper-navigation>
+      </q-step>
+    </q-stepper>
   </div>
 </template>
 
 <script>
 import { ref } from "vue";
 import { getCheckIns } from "src/helpers/firebase/firebase.js";
+const step = ref(1);
 
 const columns = [
   {
@@ -45,6 +103,7 @@ async function test() {
 export default {
   setup() {
     return {
+      step,
       columns,
       rows,
     };
