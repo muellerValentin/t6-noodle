@@ -14,6 +14,7 @@ import {
   where,
   doc,
   Timestamp,
+  deleteDoc,
 } from "firebase/firestore";
 import {} from "firebase/firestore";
 
@@ -71,6 +72,7 @@ async function getCheckIns(startDate, endDate, course) {
   let mappingJson = file; // Angenommen, dies enthält alle Studierenden
   let presentStudents = [];
   let notPresentStudents = [];
+  let docIds = [];
 
   const attendenceCollection = collection(
     getFirestore(firebaseInit()),
@@ -88,6 +90,7 @@ async function getCheckIns(startDate, endDate, course) {
     presentSerialNos.push(doc.data().serialNo);
     let student = mappingJson.find((s) => s.serialNo === doc.data().serialNo);
     if (student) {
+      docIds.push(doc.id);
       presentStudents.push({
         forename: student.forename,
         lastname: student.lastname,
@@ -109,7 +112,35 @@ async function getCheckIns(startDate, endDate, course) {
     }
   });
 
-  return { presentStudents, notPresentStudents };
+  return { presentStudents, notPresentStudents, docIds };
+}
+async function deleteDocs(docIds) {
+  for (let docId of docIds) {
+    console.log(docId);
+    await deleteDoc(doc(getFirestore(firebaseInit()), "attendence", docId));
+  }
 }
 
-export { addUser, userLogin, getCheckIns };
+async function getDatesWithAttendenceData() {
+  let datesWithAttendence = [];
+  const querySnapshot = await getDocs(
+    collection(getFirestore(firebaseInit()), "attendence")
+  );
+  querySnapshot.forEach((doc) => {
+    datesWithAttendence.push(
+      new Date(doc.data().checkInTime.toDate())
+        .toISOString()
+        .split("T")[0]
+        .replaceAll("-", "/")
+    );
+  });
+  return datesWithAttendence;
+}
+
+export {
+  addUser,
+  userLogin,
+  getCheckIns,
+  deleteDocs,
+  getDatesWithAttendenceData,
+};
