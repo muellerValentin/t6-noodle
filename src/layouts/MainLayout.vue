@@ -19,11 +19,6 @@
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <!-- NFC check -->
-      <button
-        :class="{ supported: nfcSupported, 'not-supported': !nfcSupported }"
-      >
-        NFC Check
-      </button>
 
       <q-list>
         <q-item-label header> Essential Links </q-item-label>
@@ -100,28 +95,4 @@ const leftDrawerOpen = ref(false);
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
-
-// NFC check
-if ("NDEFReader" in window) {
-  console.log("NFC API supported");
-} else {
-  console.log("NFC API not supported in this browser");
-}
-
-const nfcSupported = ref(false);
-if ("NDEFReader" in window) {
-  nfcSupported.value = true;
-}
 </script>
-
-<style scoped>
-.supported {
-  background-color: green;
-  z-index: 9999;
-}
-
-.not-supported {
-  background-color: red;
-  z-index: 9999;
-}
-</style>
