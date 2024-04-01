@@ -81,7 +81,7 @@ async function openDialog() {
     try {
       await reader.scan();
       reader.onreading = ({ serialNumber }) => {
-        scanCoscanContent.value = `Seriennummer: ${serialNumber}`;
+        scanContent.value = `Seriennummer: ${serialNumber}`;
         scanDialogOpen.value = true;
       };
     } catch (error) {
