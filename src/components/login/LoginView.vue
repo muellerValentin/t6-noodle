@@ -130,6 +130,8 @@ async function login() {
           expires: 7,
         }
       );
+
+      router.push({ name: "Overview" });
       console.log("Login successful");
     } else {
       Cookies.remove("user");

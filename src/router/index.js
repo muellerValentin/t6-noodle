@@ -42,9 +42,9 @@ export default route(function (/* { store, ssrContext } */) {
 
     // Definiert, welche Rollen Zugriff auf welche Routen haben
     const routeRoles = {
-      Studierende: [1],
+      Studierende: [0, 1],
       Dozierende: [0, 2],
-      Sekretariat: [3],
+      Sekretariat: [0, 3],
       Alle: [0, 1, 2, 3],
     };
 
@@ -82,3 +82,5 @@ export default route(function (/* { store, ssrContext } */) {
 
   return Router;
 });
+
+//{%22id%22:%22a7fe4bf919a5c471f083e2dc9db6ec8bc57ff2d818c49492204ecb704fb5ad5eb4ace500ad60f6d1de48e05c4f50570befd1493b74b21f2a5eca0e1b9a860409%22%2C%22role%22:%222%22}

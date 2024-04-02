@@ -30,6 +30,12 @@ const routes = [
         meta: { role: "Dozierende" },
         component: () => import("components/nfc/NfcReader.vue"),
       },
+      {
+        path: "/overview",
+        name: "Overview",
+        meta: { role: "Alle" },
+        component: () => import("components/overview/OverviewView.vue"),
+      },
     ],
   },
   {
