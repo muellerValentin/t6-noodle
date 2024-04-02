@@ -157,14 +157,16 @@ async function confirmRegistration(id) {
 
 // Attendence recording
 
-async function recordAttendance(serialNumber) {
+async function recordAttendance(serialNumber, course) {
   const db = getFirestore(firebaseInit());
   const timestamp = Timestamp.now();
   const docRef = doc(db, "attendance", timestamp.toString());
 
+  alert(course);
+
   await setDoc(docRef, {
     serialNo: serialNumber,
-    //course: course,
+    course: course,
     checkInTime: Timestamp.now(),
   });
 }
