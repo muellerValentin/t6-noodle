@@ -67,4 +67,4 @@ async function confirmRegistration(id) {
   }
 }
 
-export { addUser, userLogin, confirmRegistration };
+export { addUser, userLogin, confirmRegistration, firebaseInit };

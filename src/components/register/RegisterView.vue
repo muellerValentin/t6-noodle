@@ -190,7 +190,13 @@
         </q-stepper-navigation>
       </q-step>
 
-      <q-step v-if="role !== 3" :name="5" title="QR-Code" icon="qr_code">
+      <q-step
+        v-if="role !== 3"
+        :name="5"
+        title="QR-Code"
+        icon="qr_code"
+        :done="step > 5"
+      >
         Diesen QR-Code müssen Sie zum Abschluss der Registrierung im Sekretariat
         vorzeigen.
 
@@ -209,12 +215,23 @@
           />
         </q-stepper-navigation>
       </q-step>
+      <q-step
+        :name="6"
+        title="Registrierung abgeschlossen"
+        icon="sentiment_very_satisfied"
+      >
+        Sie wurden erfolgreich authenifiziert.
+        <q-stepper-navigation>
+          <q-btn color="green" label="Finish" />
+        </q-stepper-navigation>
+      </q-step>
     </q-stepper>
   </div>
 </template>
 <script setup>
+import { doc, onSnapshot, getFirestore } from "firebase/firestore";
 import { ref, onMounted } from "vue";
-import { addUser } from "src/helpers/firebase/firebase.js";
+import { addUser, firebaseInit } from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
 import QrGenerator from "../qr/QrGenerator.vue";
 const dataPassedToFirebase = ref(localStorage.getItem("dataPassedToFirebase"));
@@ -231,6 +248,28 @@ const years = getYears().map((year) => `ON${year}`);
 const checkboxes = ref(
   getYears().map((year) => ({ label: `ON${year}`, model: ref(false) }))
 );
+
+let id = hashString(
+  localStorage.getItem("forname") +
+    localStorage.getItem("lastname") +
+    localStorage.getItem("password")
+);
+
+let unsub;
+onMounted(() => {
+  if (id) {
+    unsub = onSnapshot(
+      doc(getFirestore(firebaseInit()), "users", id),
+      (doc) => {
+        console.log(doc.data().verified);
+        if (doc.data().verified) {
+          step.value = 6;
+          localStorage.setItem("step", step.value);
+        }
+      }
+    );
+  }
+});
 
 const options = [
   {
@@ -312,7 +351,7 @@ function getDataFromClient() {
   localStorage.setItem("role", role.value);
   localStorage.setItem("serialNumber", serialNumber.value);
   localStorage.setItem("year", year.value);
-  const id = hashString(forename.value + lastname.value + password.value);
+  id = hashString(forename.value + lastname.value + password.value);
   addUser(id, hashString(password.value), hashString(role.value.toString()));
   dataPassedToFirebase.value = true;
   dataForQrCode.value = `{
@@ -323,6 +362,13 @@ function getDataFromClient() {
   "serialNumber": "${serialNumber.value}",
   "id": "${id}"
 }`;
+  unsub = onSnapshot(doc(getFirestore(firebaseInit()), "users", id), (doc) => {
+    console.log(doc.data().verified);
+    if (doc.data().verified) {
+      step.value = 6;
+      localStorage.setItem("step", step.value);
+    }
+  });
   localStorage.setItem("dataPassedToFirebase", dataPassedToFirebase.value);
   localStorage.setItem("dataForQrCode", dataForQrCode.value);
   step.value = 5;
