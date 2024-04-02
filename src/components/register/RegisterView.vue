@@ -345,7 +345,7 @@ function getDataFromClient() {
   localStorage.setItem("serialNumber", serialNumber.value);
   localStorage.setItem("year", year.value);
   id = hashString(forename.value + lastname.value + password.value);
-  addUser(id, hashString(password.value), hashString(role.value.toString()));
+  addUser(id, hashString(password.value), role.value.toString());
   dataPassedToFirebase.value = true;
   dataForQrCode.value = `{
   "forename": "${forename.value}",

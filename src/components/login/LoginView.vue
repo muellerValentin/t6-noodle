@@ -92,7 +92,7 @@
                   <div class="q-mt-lg">
                     <div class="q-mt-sm">
                       Sie haben keinen Account?
-                      <router-link class="text-primary" to="/register2"
+                      <router-link class="text-primary" to="/register"
                         >Registrieren</router-link
                       >
                     </div>
@@ -108,19 +108,41 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import Cookies from "js-cookie";
 import { userLogin } from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
-import { ref } from "vue";
+
 const forename = ref();
 const lastname = ref();
 const password = ref();
 const isPwd = ref(true);
+const router = useRouter();
+
+const nameRules = ref([(v) => !!v || "Name is required"]);
 
 async function login() {
-  const id = hashString(forename.value + lastname.value + password.value);
-  if (await userLogin(id, hashString(password.value))) {
-    //@todo: getting role
+  const userCookie = Cookies.get("user");
+  if (userCookie) {
+    console.log("Cookie gefunden");
+    const user = JSON.parse(decodeURIComponent(userCookie));
   } else {
+    const id = hashString(forename.value + lastname.value + password.value);
+    const correctCredentials = await userLogin(id, hashString(password.value));
+    console.log(correctCredentials);
+    if (correctCredentials) {
+      Cookies.set(
+        "user",
+        JSON.stringify({ id: id, role: correctCredentials }),
+        {
+          expires: 7,
+        }
+      );
+      console.log("Login successful");
+    } else {
+      Cookies.remove("user");
+    }
   }
 }
 </script>

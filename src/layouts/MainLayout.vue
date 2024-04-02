@@ -14,6 +14,16 @@
         <q-toolbar-title> Noodle </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
+
+        <q-btn
+          flat
+          dense
+          round
+          icon="logout"
+          aria-label="Logout"
+          id="logout"
+          @click="logout"
+        />
       </q-toolbar>
     </q-header>
 
@@ -21,7 +31,7 @@
       <q-list>
         <q-item-label header> Essential Links </q-item-label>
         <RouterLink to="/attendence-list">Anwesenheitsliste</RouterLink>
-        <RouterLink to="/register2">Registrierung</RouterLink>
+        <RouterLink to="/register">Registrierung</RouterLink>
         <EssentialLink
           v-for="link in linksList"
           :key="link.title"
@@ -38,6 +48,7 @@
 
 <script setup>
 import { ref } from "vue";
+import Cookies from "js-cookie";
 import EssentialLink from "components/EssentialLink.vue";
 
 defineOptions({
@@ -94,4 +105,15 @@ const leftDrawerOpen = ref(false);
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
+
+function logout() {
+  Cookies.remove("user");
+  router.push("/login");
+}
 </script>
+
+<style>
+#logout {
+  margin-left: 2rem;
+}
+</style>

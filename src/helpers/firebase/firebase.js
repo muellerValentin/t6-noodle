@@ -54,12 +54,15 @@ async function userLogin(id, hashedPassword) {
   if (docSnap.exists()) {
     const data = docSnap.data();
     if (data.verified === true && data.password === hashedPassword) {
-      return true;
+      return data.role;
+      console.log("User is verified and password is correct");
     } else {
       return false;
+      console.log("User is not verified or password is incorrect");
     }
   } else {
     return false;
+    console.log("User does not exist");
   }
 }
 
