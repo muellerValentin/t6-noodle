@@ -38,7 +38,7 @@ export default route(function (/* { store, ssrContext } */) {
 
   Router.beforeEach(async (to, from, next) => {
     const user = readCookie();
-    const userRole = +user.role;
+    const userRole = user ? +user.role : 0;
 
     // Definiert, welche Rollen Zugriff auf welche Routen haben
     const routeRoles = {
