@@ -172,6 +172,7 @@ async function recordAttendance(serialNumber, course) {
 }
 
 export {
+  firebaseInit,
   addUser,
   userLogin,
   getCheckIns,
