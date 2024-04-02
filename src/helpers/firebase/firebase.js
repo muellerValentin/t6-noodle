@@ -18,6 +18,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import {} from "firebase/firestore";
+import hashString from "../hashing/hashing";
 
 const db = getFirestore(firebaseInit());
 
@@ -170,7 +171,7 @@ async function recordAttendance(serialNumber, course) {
 
   await setDoc(docRef, {
     serialNo: serialNumber,
-    course: course,
+    course: hashString(course),
     checkInTime: Timestamp.now(),
   });
 }
