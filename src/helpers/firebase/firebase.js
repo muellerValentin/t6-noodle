@@ -70,6 +70,7 @@ async function userLogin(id, hashedPassword) {
  * @author daniel
  */
 async function getCheckIns(startDate, endDate, course) {
+  console.log(course);
   let mappingJson = file; // Angenommen, dies enthält alle Studierenden
   let presentStudents = [];
   let notPresentStudents = [];
@@ -77,7 +78,7 @@ async function getCheckIns(startDate, endDate, course) {
 
   const attendenceCollection = collection(
     getFirestore(firebaseInit()),
-    "attendence"
+    "attendance"
   );
   const q = query(
     attendenceCollection,
