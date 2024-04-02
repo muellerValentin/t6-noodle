@@ -97,7 +97,7 @@ async function openDialog() {
 
         try {
           if (readSerialNumber) {
-            await recordAttendance(readSerialNumber, year.value); // 'role' sollte durch die tatsächliche Rolle ersetzt werden
+            await recordAttendance(readSerialNumber, year.value);
           }
         } catch (error) {
           console.log("Error: " + error);
