@@ -41,6 +41,16 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
+
+      <div>
+        <q-select
+          class="q-mt-sm"
+          filled
+          v-model="year"
+          :options="years"
+          label="Jahrgang"
+        />
+      </div>
     </div>
   </q-page>
 </template>
@@ -48,6 +58,10 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { recordAttendance } from "src/helpers/firebase/firebase.js";
+import { getYears } from "src/helpers/util.js";
+
+const years = getYears().map((year) => `ON${year}`);
+const year = ref("");
 
 // NFC
 const nfcSupported = ref(false);
@@ -83,7 +97,7 @@ async function openDialog() {
 
         try {
           if (readSerialNumber) {
-            await recordAttendance(readSerialNumber, "role"); // 'role' sollte durch die tatsächliche Rolle ersetzt werden
+            await recordAttendance(readSerialNumber, year.value); // 'role' sollte durch die tatsächliche Rolle ersetzt werden
           }
         } catch (error) {
           console.log("Error: " + error);
@@ -106,5 +120,9 @@ async function openDialog() {
 }
 .flex-direction-column {
   flex-direction: column !important;
+}
+
+label.q-field {
+  width: 130px;
 }
 </style>

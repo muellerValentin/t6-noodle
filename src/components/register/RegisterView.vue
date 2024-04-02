@@ -217,6 +217,7 @@ import { ref, onMounted } from "vue";
 import { addUser } from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
 import QrGenerator from "../qr/QrGenerator.vue";
+import { getYears } from "src/helpers/util.js";
 const dataPassedToFirebase = ref(localStorage.getItem("dataPassedToFirebase"));
 const step = ref(+localStorage.getItem("step") || 1);
 const forename = ref(localStorage.getItem("forname"));
@@ -292,14 +293,6 @@ console.log(getYears());
  * Function for getting possible course-years, e.g. ON21, ON22, ON23
  * @author daniel
  */
-function getYears() {
-  let possibleYears = new Array();
-  const currentYear = new Date().getFullYear() - 2000;
-  for (let i = currentYear - 3; i < currentYear; i++) {
-    possibleYears.push(i);
-  }
-  return possibleYears;
-}
 
 function getDataFromClient() {
   if (role.value === 3) {
