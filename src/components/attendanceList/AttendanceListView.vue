@@ -1,11 +1,27 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-ma-lg q-mt-xl">
     <q-stepper v-model="step" vertical color="primary" animated>
+      <q-btn
+        to="/overview"
+        flat
+        bg-color="standard"
+        color="primary"
+        size="sm"
+        icon="arrow_back"
+        label="zurück"
+      />
       <q-step :name="1" title="Datum angeben" icon="settings" :done="step > 1">
         Wählen Sie das Datum, an dem Sie die Anwesenheiten kontrollieren
         möchten.
         <div class="q-mt-sm row items-start">
-          <q-date v-model="date" minimal :options="options" />
+          <q-date
+            flat
+            class="q-pr-md"
+            dense
+            v-model="date"
+            minimal
+            :options="options"
+          />
         </div>
         <q-stepper-navigation>
           <q-btn @click="step = 2" color="primary" label="Weiter" />

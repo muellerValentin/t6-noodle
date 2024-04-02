@@ -1,43 +1,54 @@
 <template>
-  <div class="video-container">
-    <div v-if="!videoPlaying.value" class="camera-icon-container">
-      <q-icon name="photo_camera" size="30vw" />
+  <q-card class="q-ma-lg q-mt-xl">
+    <div class="video-container">
+      <q-btn
+        to="/overview"
+        flat
+        bg-color="standard"
+        color="primary"
+        size="sm"
+        icon="arrow_back"
+        label="zurück"
+      />
+      <div v-if="!videoPlaying.value" class="camera-icon-container">
+        <q-icon name="photo_camera" size="30vw" />
+      </div>
+
+      <video ref="videoStream" autoplay></video>
     </div>
 
-    <video ref="videoStream" autoplay></video>
-  </div>
+    <div class="flex flex-center q-mt-md">
+      <q-btn color="blue" label="QR-Code scannen" @click="toggleVideo" />
+    </div>
 
-  <div class="flex flex-center q-mt-md">
-    <q-btn color="blue" label="QR-Code scannen" @click="toggleVideo" />
-  </div>
+    <q-dialog v-model="dialogOpen">
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="qr_code" color="primary" text-color="white" />
+          <span class="q-ml-sm">QR-Code erkannt!</span>
+        </q-card-section>
 
-  <q-dialog v-model="dialogOpen">
-    <q-card>
-      <q-card-section class="row items-center">
-        <q-avatar icon="qr_code" color="primary" text-color="white" />
-        <span class="q-ml-sm">QR-Code erkannt!</span>
-      </q-card-section>
+        <q-card-section v-if="qrContent">
+          <div>Vorname: {{ qrContent.forename }}</div>
+          <div>Nachname: {{ qrContent.lastname }}</div>
+          <div>Rolle: {{ qrContent.role }}</div>
+          <div>Seriennummer: {{ qrContent.serialNumber }}</div>
+          <!-- <div>ID: {{ qrContent.id }}</div> -->
+        </q-card-section>
 
-      <q-card-section v-if="qrContent">
-        <div>Vorname: {{ qrContent.forename }}</div>
-        <div>Nachname: {{ qrContent.lastname }}</div>
-        <div>Rolle: {{ qrContent.role }}</div>
-        <div>Seriennummer: {{ qrContent.serialNumber }}</div>
-        <!-- <div>ID: {{ qrContent.id }}</div> -->
-      </q-card-section>
-
-      <q-card-actions align="right">
-        <q-btn flat label="Abbrechen" color="primary" v-close-popup />
-        <q-btn
-          flat
-          label="Registrierung bestätigen"
-          color="primary"
-          v-close-popup
-          @click="toggleRegistration"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
+        <q-card-actions align="right">
+          <q-btn flat label="Abbrechen" color="primary" v-close-popup />
+          <q-btn
+            flat
+            label="Registrierung bestätigen"
+            color="primary"
+            v-close-popup
+            @click="toggleRegistration"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </q-card>
 </template>
 
 <script setup>
@@ -196,7 +207,7 @@ async function saveOrUpdateFile(fileHandle) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 5px;
+  border-radius: 2px;
 }
 
 .camera-icon-container {
@@ -206,6 +217,6 @@ async function saveOrUpdateFile(fileHandle) {
   width: 100%;
   height: 100%;
   background-color: #d1d1d1;
-  border-radius: 5px;
+  border-radius: 2px;
 }
 </style>
