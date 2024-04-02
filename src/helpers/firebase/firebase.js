@@ -118,14 +118,14 @@ async function getCheckIns(startDate, endDate, course) {
 async function deleteDocs(docIds) {
   for (let docId of docIds) {
     console.log(docId);
-    await deleteDoc(doc(getFirestore(firebaseInit()), "attendence", docId));
+    await deleteDoc(doc(getFirestore(firebaseInit()), "attendance", docId));
   }
 }
 
 async function getDatesWithAttendenceData() {
   let datesWithAttendence = [];
   const querySnapshot = await getDocs(
-    collection(getFirestore(firebaseInit()), "attendence")
+    collection(getFirestore(firebaseInit()), "attendance")
   );
   querySnapshot.forEach((doc) => {
     datesWithAttendence.push(
