@@ -8,6 +8,10 @@ const routes = [
         path: "/qr-test",
         component: () => import("components/qr/QrReader.vue"),
       },
+      {
+        path: "/nfc-scan",
+        component: () => import("components/nfc/NfcReader.vue"),
+      },
       // Entfernen Sie die Registrierung von den Kinderrouten des MainLayout
     ],
   },
@@ -32,6 +36,10 @@ const routes = [
   {
     path: "/qr-test",
     component: () => import("components/qr/QrReader.vue"),
+  },
+  {
+    path: "/nfc-scan",
+    component: () => import("components/nfc/NfcReader.vue"),
   },
 
   // Always leave this as last one,firebase deploy

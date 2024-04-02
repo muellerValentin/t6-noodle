@@ -1,11 +1,7 @@
 <template>
-  <q-page class="flex flex-center">
+  <q-page class="flex flex-center flex-direction-column">
     <div class="flex flex-center flex-direction-column">
-      <img
-        alt="Quasar logo"
-        src="~assets/quasar-logo-vertical.svg"
-        style="width: 200px; height: 200px"
-      />
+      <p>Scannen Sie die Studierendenausweise per NFC ein:</p>
 
       <q-btn
         label="NFC-Scan"
@@ -51,16 +47,16 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { recordAttendance } from "src/helpers/firebase/firebase.js";
 
-defineOptions({
-  name: "IndexPage",
-});
-
+// NFC
 const nfcSupported = ref(false);
 const dialogOpen = ref(false);
 const dialogMessage = ref("");
 const scanDialogOpen = ref(false);
 const scanContent = ref("");
+
+const serialNumber = ref(localStorage.getItem("serialNumber"));
 
 let reader;
 
@@ -80,9 +76,18 @@ async function openDialog() {
   if (nfcSupported.value) {
     try {
       await reader.scan();
-      reader.onreading = ({ serialNumber }) => {
-        scanContent.value = `Seriennummer: ${serialNumber}`;
+      reader.onreading = async ({ serialNumber: readSerialNumber }) => {
+        scanContent.value = `Seriennummer: ${readSerialNumber}`;
+        serialNumber.value = `${readSerialNumber}`;
         scanDialogOpen.value = true;
+
+        try {
+          if (readSerialNumber) {
+            await recordAttendance(readSerialNumber, "role"); // 'role' sollte durch die tatsächliche Rolle ersetzt werden
+          }
+        } catch (error) {
+          console.log("Error: " + error);
+        }
       };
     } catch (error) {
       console.log("Error: " + error);
@@ -98,5 +103,8 @@ async function openDialog() {
 
 .not-supported {
   background-color: red;
+}
+.flex-direction-column {
+  flex-direction: column !important;
 }
 </style>

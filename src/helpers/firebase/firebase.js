@@ -3,7 +3,7 @@
  * @author daniel
  */
 import { initializeApp } from "firebase/app";
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 
 const db = getFirestore(firebaseInit());
@@ -67,4 +67,18 @@ async function confirmRegistration(id) {
   }
 }
 
-export { addUser, userLogin, confirmRegistration };
+// Attendence recording
+
+async function recordAttendance(serialNumber) {
+  const db = getFirestore(firebaseInit());
+  const timestamp = Timestamp.now();
+  const docRef = doc(db, "attendance", timestamp.toString());
+
+  await setDoc(docRef, {
+    serialNo: serialNumber,
+    //course: course,
+    checkInTime: Timestamp.now(),
+  });
+}
+
+export { addUser, userLogin, confirmRegistration, recordAttendance };
