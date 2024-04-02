@@ -3,7 +3,7 @@
  * @author daniel
  */
 import { initializeApp } from "firebase/app";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 
 const db = getFirestore(firebaseInit());
