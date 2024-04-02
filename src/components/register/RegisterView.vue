@@ -1,6 +1,15 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-ma-lg q-mt-xl">
     <q-stepper v-model="step" vertical color="primary" animated>
+      <q-btn
+        to="/login"
+        flat
+        bg-color="standard"
+        color="primary"
+        size="sm"
+        icon="arrow_back"
+        label="zurück"
+      />
       <q-step
         :name="1"
         title="Basisinformationen"
@@ -80,45 +89,17 @@
       >
         <p>Scannen Sie ihren Studierendenausweis per NFC ein:</p>
 
-        <q-btn
-          label="NFC-Scan"
-          :class="{ supported: nfcSupported, 'not-supported': !nfcSupported }"
-          @click="openDialog"
-        />
-
-        <q-dialog v-model="dialogOpen">
-          <q-card>
-            <q-card-section class="row items-center">
-              <q-avatar icon="nfc" color="primary" text-color="white" />
-              <span class="q-ml-sm">{{ dialogMessage }}</span>
-            </q-card-section>
-
-            <q-card-actions align="right">
-              <q-btn flat label="Cancel" color="primary" v-close-popup />
-              <q-btn
-                flat
-                label="Turn on NFC"
-                color="primary"
-                v-if="nfcSupported"
-                v-close-popup
-              />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
-
-        <q-dialog v-model="scanDialogOpen">
-          <q-card>
-            <q-card-section class="row items-center">
-              <q-avatar icon="nfc" color="primary" text-color="white" />
-              <span class="q-ml-sm">{{ scanContent }}</span>
-            </q-card-section>
-
-            <q-card-actions align="right">
-              <q-btn flat label="Close" color="primary" v-close-popup />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
-
+        <q-input
+          @click="scanNFC"
+          color="primary"
+          filled
+          v-model="serialNo"
+          label="Seriennummer"
+        >
+          <template v-slot:append>
+            <q-icon name="sensors" />
+          </template>
+        </q-input>
         <q-stepper-navigation>
           <q-btn @click="step = 4" color="primary" label="Weiter" />
           <q-btn
@@ -244,7 +225,9 @@ const masterPassword = ref();
 const isPwd = ref(true);
 const role = ref(+localStorage.getItem("role"));
 const year = ref(localStorage.getItem("year"));
+const serialNo = ref();
 const dataForQrCode = ref(localStorage.getItem("dataForQrCode"));
+const nameRules = ref([(v) => !!v || "Name is required"]);
 const years = getYears().map((year) => `ON${year}`);
 const checkboxes = ref(
   getYears().map((year) => ({ label: `ON${year}`, model: ref(false) }))
@@ -304,6 +287,20 @@ onMounted(() => {
     reader = new NDEFReader();
   }
 });
+
+async function scanNFC() {
+  console.log("test");
+  try {
+    await reader.scan();
+    reader.onreading = ({ serialNumber: readSerialNumber }) => {
+      scanContent.value = `Seriennummer: ${readSerialNumber}`;
+      serialNumber.value = `${readSerialNumber}`;
+      serialNo.value = readSerialNumber;
+    };
+  } catch (error) {
+    console.log("Error: " + error);
+  }
+}
 
 async function openDialog() {
   dialogMessage.value = nfcSupported.value

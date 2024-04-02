@@ -47,8 +47,6 @@ export default route(function (/* { store, ssrContext } */) {
       Sekretariat: [3],
       Alle: [0, 1, 2, 3],
     };
-    console.log(to.name);
-    console.log(from.name);
 
     // Vermeidung eines unendlichen Redirects zur Login-Seite
     if (to.name !== "Login" && from.name !== to.name) {
