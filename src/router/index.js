@@ -45,15 +45,13 @@ export default route(function (/* { store, ssrContext } */) {
       Studierende: [1],
       Dozierende: [2],
       Sekretariat: [3],
-      Alle: [1, 2, 3],
+      Alle: [0, 1, 2, 3],
     };
+    console.log(to.name);
+    console.log(from.name);
 
     // Vermeidung eines unendlichen Redirects zur Login-Seite
     if (to.name !== "Login" && from.name !== to.name) {
-      if (!user) {
-        return next({ name: "Login" });
-      }
-
       // Prüft, ob der Benutzer Zugriff auf die angeforderte Seite hat, basierend auf seiner Rolle
       const allowedRoles = routeRoles[to.meta.role] || [];
       if (!allowedRoles.includes(userRole)) {
