@@ -1,8 +1,5 @@
 <template>
-  <!-- Design template by Joabson Arley
-     https://github.com/Joabsonlg/quasar-template-->
-
-  <q-card class="q-ma-xl">
+  <q-card class="q-ma-lg q-mt-xl">
     <div class="row">
       <div class="col-0 col-sm-5 bg-primary rounded-left-borders xs-hide">
         <div
@@ -25,13 +22,7 @@
       <div class="col-12 col-sm-7">
         <div class="row q-ml-sm q-mt-sm sm-and-up-hide">
           <div class="col-12 fredoka text-subtitle1">
-            <router-link
-              class="text-primary"
-              style="text-decoration: none"
-              to="/"
-            >
-              NOODLE
-            </router-link>
+            <p class="text-primary">💙-lich Willkommen</p>
           </div>
         </div>
         <div class="row q-pa-sm-sm q-pa-md">
@@ -42,7 +33,7 @@
                   <div
                     class="text-h4 text-uppercase q-my-none text-weight-bold text-primary fredoka"
                   >
-                    Login
+                    NOODLE
                   </div>
                 </div>
               </div>
