@@ -3,8 +3,20 @@
  * @author daniel
  */
 import { initializeApp } from "firebase/app";
-import { doc, setDoc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
-import { getFirestore } from "firebase/firestore";
+import file from "./test.json";
+import {
+  setDoc,
+  getDocs,
+  getDoc,
+  getFirestore,
+  collection,
+  query,
+  where,
+  doc,
+  Timestamp,
+  deleteDoc,
+} from "firebase/firestore";
+import {} from "firebase/firestore";
 
 const db = getFirestore(firebaseInit());
 
@@ -50,35 +62,85 @@ async function userLogin(id, hashedPassword) {
   }
 }
 
-// Confirm Registration
-async function confirmRegistration(id) {
-  const docRef = doc(getFirestore(firebaseInit()), "users", id);
-  const docSnap = await getDoc(docRef);
+/**
+ * Getting the "attendence list" from Firebase
+ * @param {Date} startDate
+ * @param {Date} endDate
+ * @author daniel
+ */
+async function getCheckIns(startDate, endDate, course) {
+  let mappingJson = file; // Angenommen, dies enthält alle Studierenden
+  let presentStudents = [];
+  let notPresentStudents = [];
+  let docIds = [];
 
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    if (data.verified === false) {
-      await updateDoc(docRef, { verified: true });
-    } else {
-      throw new Error("User is already verified");
+  const attendenceCollection = collection(
+    getFirestore(firebaseInit()),
+    "attendence"
+  );
+  const q = query(
+    attendenceCollection,
+    where("checkInTime", ">=", Timestamp.fromDate(startDate)),
+    where("checkInTime", "<=", Timestamp.fromDate(endDate)),
+    where("course", "==", course)
+  );
+  const querySnapshot = await getDocs(q);
+  let presentSerialNos = [];
+  querySnapshot.forEach((doc) => {
+    presentSerialNos.push(doc.data().serialNo);
+    let student = mappingJson.find((s) => s.serialNo === doc.data().serialNo);
+    if (student) {
+      docIds.push(doc.id);
+      presentStudents.push({
+        forename: student.forename,
+        lastname: student.lastname,
+        checkIn: new Date(doc.data().checkInTime.seconds * 1000).toLocaleString(
+          "DE"
+        ),
+      });
     }
-  } else {
-    throw new Error("User does not exist");
+  });
+  mappingJson.forEach((student) => {
+    if (
+      student.course === course &&
+      !presentSerialNos.includes(student.serialNo)
+    ) {
+      notPresentStudents.push({
+        forename: student.forename,
+        lastname: student.lastname,
+      });
+    }
+  });
+
+  return { presentStudents, notPresentStudents, docIds };
+}
+async function deleteDocs(docIds) {
+  for (let docId of docIds) {
+    console.log(docId);
+    await deleteDoc(doc(getFirestore(firebaseInit()), "attendence", docId));
   }
 }
 
-// Attendence recording
-
-async function recordAttendance(serialNumber) {
-  const db = getFirestore(firebaseInit());
-  const timestamp = Timestamp.now();
-  const docRef = doc(db, "attendance", timestamp.toString());
-
-  await setDoc(docRef, {
-    serialNo: serialNumber,
-    //course: course,
-    checkInTime: Timestamp.now(),
+async function getDatesWithAttendenceData() {
+  let datesWithAttendence = [];
+  const querySnapshot = await getDocs(
+    collection(getFirestore(firebaseInit()), "attendence")
+  );
+  querySnapshot.forEach((doc) => {
+    datesWithAttendence.push(
+      new Date(doc.data().checkInTime.toDate())
+        .toISOString()
+        .split("T")[0]
+        .replaceAll("-", "/")
+    );
   });
+  return datesWithAttendence;
 }
 
-export { addUser, userLogin, confirmRegistration, recordAttendance };
+export {
+  addUser,
+  userLogin,
+  getCheckIns,
+  deleteDocs,
+  getDatesWithAttendenceData,
+};
