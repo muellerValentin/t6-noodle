@@ -43,7 +43,7 @@ export default route(function (/* { store, ssrContext } */) {
     // Definiert, welche Rollen Zugriff auf welche Routen haben
     const routeRoles = {
       Studierende: [1],
-      Dozierende: [2],
+      Dozierende: [0, 2],
       Sekretariat: [3],
       Alle: [0, 1, 2, 3],
     };

@@ -2,43 +2,48 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
         <q-toolbar-title> Noodle </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>
+          <q-btn
+            flat
+            dense
+            round
+            icon="logout"
+            aria-label="Logout"
+            id="logout"
+            @click="logout"
+          />
+          <q-btn
+            flat
+            dense
+            round
+            icon="info_outline"
+            aria-label="info"
+            id="info"
+            @click="alert = true"
+          />
+          <q-dialog
+            backdrop-filter="blur(4px) saturate(150%)"
+            v-model="alert"
+            :position="position"
+          >
+            <q-card style="width: 350px">
+              <q-linear-progress :value="1" color="primary" />
 
-        <q-btn
-          flat
-          dense
-          round
-          icon="logout"
-          aria-label="Logout"
-          id="logout"
-          @click="logout"
-        />
+              <q-card-section class="row items-center no-wrap">
+                <div>
+                  <div class="text-weight-bold h-6">Noodle</div>
+                  <div class="text-grey">
+                    by L.Breisch, L.Lederer, M.Möldner, V.Müller, D.Vollmer
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
+          </q-dialog>
+        </div>
       </q-toolbar>
     </q-header>
-
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <q-item-label header> Essential Links </q-item-label>
-        <RouterLink to="/attendence-list">Anwesenheitsliste</RouterLink>
-        <RouterLink to="/register">Registrierung</RouterLink>
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -47,64 +52,14 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
 import Cookies from "js-cookie";
-import EssentialLink from "components/EssentialLink.vue";
+import { ref } from "vue";
+const alert = ref(false);
+function showInfo() {}
 
 defineOptions({
   name: "MainLayout",
 });
-
-const linksList = [
-  {
-    title: "Docs",
-    caption: "quasar.dev",
-    icon: "school",
-    link: "https://quasar.dev",
-  },
-  {
-    title: "Github",
-    caption: "github.com/quasarframework",
-    icon: "code",
-    link: "https://github.com/quasarframework",
-  },
-  {
-    title: "Discord Chat Channel",
-    caption: "chat.quasar.dev",
-    icon: "chat",
-    link: "https://chat.quasar.dev",
-  },
-  {
-    title: "Forum",
-    caption: "forum.quasar.dev",
-    icon: "record_voice_over",
-    link: "https://forum.quasar.dev",
-  },
-  {
-    title: "Twitter",
-    caption: "@quasarframework",
-    icon: "rss_feed",
-    link: "https://twitter.quasar.dev",
-  },
-  {
-    title: "Facebook",
-    caption: "@QuasarFramework",
-    icon: "public",
-    link: "https://facebook.quasar.dev",
-  },
-  {
-    title: "Quasar Awesome",
-    caption: "Community Quasar projects",
-    icon: "favorite",
-    link: "https://awesome.quasar.dev",
-  },
-];
-
-const leftDrawerOpen = ref(false);
-
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value;
-}
 
 function logout() {
   Cookies.remove("user");
