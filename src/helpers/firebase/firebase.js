@@ -15,6 +15,7 @@ import {
   doc,
   Timestamp,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import {} from "firebase/firestore";
 
@@ -137,10 +138,43 @@ async function getDatesWithAttendenceData() {
   return datesWithAttendence;
 }
 
+// Confirm Registration
+async function confirmRegistration(id) {
+  const docRef = doc(getFirestore(firebaseInit()), "users", id);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    if (data.verified === false) {
+      await updateDoc(docRef, { verified: true });
+    } else {
+      throw new Error("User is already verified");
+    }
+  } else {
+    throw new Error("User does not exist");
+  }
+}
+
+// Attendence recording
+
+async function recordAttendance(serialNumber) {
+  const db = getFirestore(firebaseInit());
+  const timestamp = Timestamp.now();
+  const docRef = doc(db, "attendance", timestamp.toString());
+
+  await setDoc(docRef, {
+    serialNo: serialNumber,
+    //course: course,
+    checkInTime: Timestamp.now(),
+  });
+}
+
 export {
   addUser,
   userLogin,
   getCheckIns,
   deleteDocs,
   getDatesWithAttendenceData,
+  confirmRegistration,
+  recordAttendance,
 };

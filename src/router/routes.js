@@ -12,6 +12,11 @@ const routes = [
         path: "/nfc-scan",
         component: () => import("components/nfc/NfcReader.vue"),
       },
+      {
+        path: "attendence-list",
+        component: () =>
+          import("components/attendenceList/AttendenceListView.vue"),
+      },
       // Entfernen Sie die Registrierung von den Kinderrouten des MainLayout
     ],
   },

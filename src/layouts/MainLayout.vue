@@ -11,7 +11,7 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-toolbar-title> Noodle </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
@@ -20,7 +20,8 @@
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
         <q-item-label header> Essential Links </q-item-label>
-        <RouterLink to="/attendence-list">Test</RouterLink>
+        <RouterLink to="/attendence-list">Anwesenheitsliste</RouterLink>
+        <RouterLink to="/register2">Registrierung</RouterLink>
         <EssentialLink
           v-for="link in linksList"
           :key="link.title"
