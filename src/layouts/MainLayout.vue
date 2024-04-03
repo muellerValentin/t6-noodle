@@ -56,6 +56,9 @@ import Cookies from "js-cookie";
 import { ref } from "vue";
 const alert = ref(false);
 function showInfo() {}
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 defineOptions({
   name: "MainLayout",
