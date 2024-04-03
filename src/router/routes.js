@@ -47,10 +47,10 @@ const routes = [
     // Diese Route verwendet nicht das MainLayout, wodurch die Registrierungsseite ein eigenständiges Layout hat.
   },
   {
-    path: "/asdf",
-    name: "asdf",
+    path: "/access-denied",
+    name: "AccessDenied",
     meta: { role: "Alle" },
-    component: () => import("components/register/SharedRegisterView.vue"),
+    component: () => import("components/accessDenied/AccessDeniedView.vue"),
 
     // Diese Route verwendet nicht das MainLayout, wodurch die Registrierungsseite ein eigenständiges Layout hat.
   },

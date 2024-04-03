@@ -134,6 +134,7 @@ const nameRules = ref([(v) => !!v || "Name is required"]);
 async function login() {
   const userCookie = Cookies.get("user");
   if (userCookie) {
+    //@ToDo: Not pushing to overview ervery time
     console.log("Cookie gefunden");
     const user = JSON.parse(decodeURIComponent(userCookie));
     router.push({ name: "Overview" });

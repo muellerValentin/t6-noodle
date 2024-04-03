@@ -2,6 +2,9 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
+        <q-avatar>
+          <img color="white" src="~assets/noodle-logo-white.svg" />
+        </q-avatar>
         <q-toolbar-title> Noodle </q-toolbar-title>
 
         <div>

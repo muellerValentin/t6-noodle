@@ -55,7 +55,7 @@ export default route(function (/* { store, ssrContext } */) {
       if (!allowedRoles.includes(userRole)) {
         // Wenn die Rolle des Benutzers keinen Zugriff gewährt, umleiten oder Fehler anzeigen
         // Umleitung zur Startseite oder zur Zugriff verweigert-Seite
-        return next({ name: "asdf" }); // Ersetzen Sie "AccessDenied" durch den tatsächlichen Routennamen
+        return next({ name: "AccessDenied" }); // Ersetzen Sie "AccessDenied" durch den tatsächlichen Routennamen
       }
     }
     // Wenn alles in Ordnung ist, fortfahren zur angeforderten Seite
