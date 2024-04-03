@@ -52,10 +52,10 @@
       </template>
       <q-carousel-slide
         v-if="role === '1'"
-        name="list"
+        name="init"
         class="column no-wrap flex-center"
       >
-        <q-icon name="init" size="56px" />
+        <q-icon name="list" size="56px" />
         <div class="q-mt-md text-center">
           Sehen Sie eine Liste mit Ihren aktuellen (noch ungeprüften) Check-Ins
           an.

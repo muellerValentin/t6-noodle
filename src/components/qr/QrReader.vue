@@ -1,25 +1,45 @@
 <template>
   <q-card class="q-ma-lg q-mt-xl">
-    <div class="video-container">
-      <q-btn
-        to="/overview"
-        flat
-        bg-color="standard"
-        color="primary"
-        size="sm"
-        icon="arrow_back"
-        label="zurück"
-      />
-      <div v-if="!videoPlaying.value" class="camera-icon-container">
-        <q-icon name="photo_camera" size="30vw" />
-      </div>
+    <q-btn
+      class="q-mt-md"
+      to="/overview"
+      flat
+      bg-color="standard"
+      color="primary"
+      size="sm"
+      icon="arrow_back"
+      label="zurück"
+    />
 
-      <video ref="videoStream" autoplay></video>
-    </div>
+    <q-card>
+      <div></div>
+      <q-skeleton
+        v-if="!videoPlaying"
+        @click="toggleVideo"
+        class="camera-icon-container"
+        height="200px"
+        square
+        ><q-icon @click="toggleVideo" name="photo_camera" size="15vw"
+      /></q-skeleton>
+      <q-skeleton
+        v-else-if="videoPlaying === 'qrCodeDetected'"
+        class="camera-icon-container"
+        height="200px"
+        @click="toggleVideo"
+        square
+        ><q-icon @click="toggleVideo" color="green" name="check" size="10vw"
+      /></q-skeleton>
+      <q-skeleton
+        v-else-if="videoPlaying === 'qrCodeNotValidated'"
+        class="camera-icon-container"
+        height="200px"
+        @click="toggleVideo"
+        square
+        ><q-icon @click="toggleVideo" color="red" name="close" size="10vw"
+      /></q-skeleton>
 
-    <div class="flex flex-center q-mt-md">
-      <q-btn color="blue" label="QR-Code scannen" @click="toggleVideo" />
-    </div>
+      <video v-else style="width: 100%" ref="videoStream" autoplay></video>
+    </q-card>
 
     <q-dialog v-model="dialogOpen">
       <q-card>
@@ -37,7 +57,13 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Abbrechen" color="primary" v-close-popup />
+          <q-btn
+            flat
+            label="Abbrechen"
+            color="primary"
+            v-close-popup
+            @click="videoPlaying === 'qrCodeNotValidated'"
+          />
           <q-btn
             flat
             label="Registrierung bestätigen"
@@ -67,6 +93,8 @@ async function detectCode() {
   const test = await readQrCode(videoStream.value, true);
   console.log(test);
   if (test) {
+    videoStream.value.pause();
+    videoPlaying.value = "qrCodeDetected";
     qrContent.value = test;
     console.log("qrContent:" + qrContent.value);
     dialogOpen.value = true;
@@ -75,10 +103,11 @@ async function detectCode() {
 }
 
 async function toggleVideo() {
-  if (videoPlaying.value) {
-    videoStream.value.pause();
+  if (videoPlaying.value === true) {
+    console.log("test");
     clearInterval(intervalId);
   } else {
+    videoPlaying.value = true;
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       const constraints = {
         video: {
@@ -92,7 +121,7 @@ async function toggleVideo() {
       intervalId = setInterval(detectCode, 1000);
     }
   }
-  videoPlaying.value = !videoPlaying.value;
+  //videoPlaying.value = !videoPlaying.value;
 }
 
 /*
@@ -143,6 +172,7 @@ async function toggleRegistration() {
     saveOrUpdateFile();
     console.log("Registrierung bestätigt");
   } catch (error) {
+    videoPlaying.value = "qrCodeNotValidated";
     console.error("Fehler bei der Bestätigung der Registrierung:", error);
   }
 }
@@ -189,27 +219,6 @@ async function saveOrUpdateFile(fileHandle) {
 </script>
 
 <style scoped>
-.video-container {
-  width: 100%;
-  max-width: 1000px;
-  height: calc(100vw - 20px); /* 20px to account for potential scrollbars */
-  max-height: 1000px;
-  position: relative;
-  margin: auto;
-  border: 2px solid var(--q-primary);
-  border-radius: 5px;
-}
-
-.video-container video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 2px;
-}
-
 .camera-icon-container {
   display: flex;
   justify-content: center;

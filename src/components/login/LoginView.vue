@@ -118,6 +118,7 @@ async function login() {
   if (userCookie) {
     console.log("Cookie gefunden");
     const user = JSON.parse(decodeURIComponent(userCookie));
+    router.push({ name: "Overview" });
   } else {
     const id = hashString(forename.value + lastname.value + password.value);
     const correctCredentials = await userLogin(id, hashString(password.value));
