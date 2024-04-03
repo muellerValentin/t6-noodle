@@ -1,6 +1,21 @@
 <template>
   <div class="q-ma-lg q-mt-xl">
+    <q-card v-if="!showCarousel">
+      <q-card-actions align="center" class="q-gutter-md">
+        <q-skeleton type="QToggle" />
+      </q-card-actions>
+
+      <q-skeleton height="150px" square />
+      <q-card-actions align="center" class="q-gutter-md">
+        <q-skeleton type="QBtn" />
+      </q-card-actions>
+      <q-card-actions align="center" class="q-gutter-md">
+        <q-skeleton size="22px" type="QRadio" />
+        <q-skeleton size="22px" type="QRadio" />
+      </q-card-actions>
+    </q-card>
     <q-carousel
+      v-else
       v-model="slide"
       transition-prev="scale"
       transition-next="scale"
@@ -139,13 +154,19 @@
 
 <script setup>
 import Cookies from "js-cookie";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 const slide = ref("init");
 const lorem = ref(
   "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo."
 );
 const role = ref();
+const showCarousel = ref(false);
 init();
+onMounted(() =>
+  setTimeout(() => {
+    showCarousel.value = true; // Show the carousel after 5 seconds
+  }, 3000)
+);
 
 function init() {
   const cookie = readCookie();
