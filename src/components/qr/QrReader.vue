@@ -10,7 +10,6 @@
       icon="arrow_back"
       label="zurück"
     />
-
     <q-card>
       <div></div>
       <q-skeleton
@@ -74,6 +73,26 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="seamless" seamless position="bottom">
+      <q-card style="width: 350px">
+        <q-linear-progress :value="1" color="primary" />
+
+        <q-card-section class="row items-center no-wrap">
+          <div>
+            <div class="text-weight-bold">Hinweis</div>
+            <div class="text-grey">
+              Zum Scannen vom QR-Code auf das obige Icon klicken.
+            </div>
+          </div>
+
+          <q-space />
+
+          <q-btn flat round icon="photo_camera" />
+
+          <q-btn flat round icon="close" v-close-popup />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-card>
 </template>
 
@@ -83,6 +102,7 @@ import { confirmRegistration } from "src/helpers/firebase/firebase.js";
 import { onMounted, ref } from "vue";
 import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
 
+const seamless = ref(true);
 const videoStream = ref(null);
 const videoPlaying = ref(false);
 const dialogOpen = ref(false);
