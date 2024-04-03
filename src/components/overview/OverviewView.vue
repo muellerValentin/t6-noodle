@@ -164,8 +164,8 @@ const showCarousel = ref(false);
 init();
 onMounted(() =>
   setTimeout(() => {
-    showCarousel.value = true; // Show the carousel after 5 seconds
-  }, 3000)
+    showCarousel.value = true;
+  }, 1000)
 );
 
 function init() {
