@@ -18,7 +18,7 @@ const routes = [
         component: () => import("components/qr/QrReader.vue"),
       },
       {
-        path: "attendance-list",
+        path: "/attendance-list",
         name: "AttendanceList",
         meta: { role: "Sekretariat" },
         component: () =>

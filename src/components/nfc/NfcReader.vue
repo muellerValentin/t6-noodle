@@ -1,12 +1,41 @@
 <template>
   <q-page class="flex flex-center flex-direction-column">
-    <div class="flex flex-center flex-direction-column">
-      <p>Scannen Sie die Studierendenausweise per NFC ein:</p>
+    <h2 class="text-h5">NFC-Scanner</h2>
+    <p>Scannen Sie die Studierendenausweise per NFC ein:</p>
 
+    <div class="q-select">
+      <q-select
+        class="q-mt-sm"
+        filled
+        v-model="year"
+        :options="years"
+        label="Jahrgang"
+      />
+    </div>
+
+    <div class="card-container">
+      <q-card class="bg-primary text-white text-center q-pa-md">
+        <q-card-section class="row items-center justify-center">
+          <div class="nfc-icon-container">
+            <q-icon class="icon" name="nfc" size="40vw" />
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <div class="flex flex-center flex-direction-column nfc-scan">
       <q-btn
-        label="NFC-Scan"
+        label="NFC-Scan starten"
         :class="{ supported: nfcSupported, 'not-supported': !nfcSupported }"
         @click="openDialog"
+        :disabled="!year"
+      />
+      <q-btn
+        class="nfcActive"
+        v-if="nfcActive"
+        color="red"
+        label="NFC deaktivieren"
+        @click="deactivateNfc"
       />
 
       <q-dialog v-model="dialogOpen">
@@ -17,10 +46,10 @@
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn flat label="Cancel" color="primary" v-close-popup />
+            <q-btn flat label="Abbrechen" color="primary" v-close-popup />
             <q-btn
               flat
-              label="Turn on NFC"
+              label="NFC aktivieren"
               color="primary"
               v-if="nfcSupported"
               v-close-popup
@@ -33,24 +62,18 @@
         <q-card>
           <q-card-section class="row items-center">
             <q-avatar icon="nfc" color="primary" text-color="white" />
+            <h5>Scan erfolgreich!</h5>
+            <span class="q-ml-sm"
+              >Der Studierendenausweis wurde erfolgreich gescannt.</span
+            >
             <span class="q-ml-sm">{{ scanContent }}</span>
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn flat label="Close" color="primary" v-close-popup />
+            <q-btn flat label="OK" color="primary" v-close-popup />
           </q-card-actions>
         </q-card>
       </q-dialog>
-
-      <div>
-        <q-select
-          class="q-mt-sm"
-          filled
-          v-model="year"
-          :options="years"
-          label="Jahrgang"
-        />
-      </div>
     </div>
   </q-page>
 </template>
@@ -65,6 +88,7 @@ const year = ref("");
 
 // NFC
 const nfcSupported = ref(false);
+const nfcActive = ref(false);
 const dialogOpen = ref(false);
 const dialogMessage = ref("");
 const scanDialogOpen = ref(false);
@@ -73,6 +97,7 @@ const scanContent = ref("");
 const serialNumber = ref(localStorage.getItem("serialNumber"));
 
 let reader;
+let abortController;
 
 onMounted(() => {
   if ("NDEFReader" in window) {
@@ -83,13 +108,15 @@ onMounted(() => {
 
 async function openDialog() {
   dialogMessage.value = nfcSupported.value
-    ? "Start NFC-Scan"
-    : "Your device does not support a NFC-Scan!";
+    ? "NFC-Scan starten?"
+    : "Dein Gerät unterstützt leider nicht den NFC-Scan!";
   dialogOpen.value = true;
 
   if (nfcSupported.value) {
     try {
-      await reader.scan();
+      abortController = new AbortController();
+      await reader.scan({ signal: abortController.signal });
+      nfcActive.value = true;
       reader.onreading = async ({ serialNumber: readSerialNumber }) => {
         scanContent.value = `Seriennummer: ${readSerialNumber}`;
         serialNumber.value = `${readSerialNumber}`;
@@ -108,11 +135,36 @@ async function openDialog() {
     }
   }
 }
+
+async function deactivateNfc() {
+  abortController.abort();
+  nfcActive.value = false;
+}
 </script>
 
 <style scoped>
+.q-select {
+  padding-bottom: 1rem;
+}
+.card-container {
+  width: 80%;
+  max-width: 500px;
+  aspect-ratio: 1 / 1;
+  position: relative;
+}
+
+.card-container .q-card {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .supported {
   background-color: green;
+  color: white;
 }
 
 .not-supported {
@@ -120,6 +172,10 @@ async function openDialog() {
 }
 .flex-direction-column {
   flex-direction: column !important;
+}
+
+.nfc-scan {
+  margin-top: 1rem;
 }
 
 label.q-field {

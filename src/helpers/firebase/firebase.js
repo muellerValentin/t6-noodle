@@ -167,8 +167,6 @@ async function recordAttendance(serialNumber, course) {
   const timestamp = Timestamp.now();
   const docRef = doc(db, "attendance", timestamp.toString());
 
-  alert(course);
-
   await setDoc(docRef, {
     serialNo: serialNumber,
     course: hashString(course),
