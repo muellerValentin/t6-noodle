@@ -1,5 +1,22 @@
 <template>
   <q-card class="q-ma-lg q-mt-xl">
+    <q-dialog v-if="isInstallable" v-model="seamless" seamless position="top">
+      <q-card style="width: 350px">
+        <q-linear-progress :value="1" color="primary" />
+
+        <q-card-section class="row items-center no-wrap">
+          <q-icon size="36px" name="download"></q-icon>
+          <div>
+            <div class="text-weight-bold">Noodle</div>
+            <div class="text-grey">App installieren</div>
+          </div>
+
+          <q-space />
+
+          <q-btn color="primary" @click="installPWA">Install</q-btn>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
     <div class="row">
       <div class="col-0 col-sm-5 bg-primary rounded-left-borders xs-hide">
         <div
@@ -104,6 +121,7 @@ import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import { userLogin } from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
+const seamless = ref(true);
 
 const forename = ref();
 const lastname = ref();
@@ -137,6 +155,34 @@ async function login() {
     } else {
       Cookies.remove("user");
     }
+  }
+}
+
+const isInstallable = ref(false);
+const deferredPrompt = ref(null);
+onMounted(() => {
+  window.addEventListener("beforeinstallprompt", (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Save the event so it can be triggered later.
+    deferredPrompt.value = e;
+    // Update UI to notify the user they can install the PWA
+    isInstallable.value = true;
+  });
+});
+
+async function installPWA() {
+  if (deferredPrompt.value) {
+    // Show the install prompt
+    deferredPrompt.value.prompt();
+    const { outcome } = await deferredPrompt.value.userChoice;
+    if (outcome === "accepted") {
+      console.log("User accepted the install prompt");
+    } else {
+      console.log("User dismissed the install prompt");
+    }
+    deferredPrompt.value = null;
+    isInstallable.value = false;
   }
 }
 </script>
