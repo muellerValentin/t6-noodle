@@ -83,21 +83,17 @@ import { ref, onMounted } from "vue";
 import { recordAttendance } from "src/helpers/firebase/firebase.js";
 import { getYears } from "src/helpers/util.js";
 
-const years = getYears().map((year) => `ON${year}`);
-const year = ref("");
-
-// NFC
 const nfcSupported = ref(false);
-const nfcActive = ref(false);
-const dialogOpen = ref(false);
 const dialogMessage = ref("");
-const scanDialogOpen = ref(false);
-const scanContent = ref("");
-
-const serialNumber = ref(localStorage.getItem("serialNumber"));
-
-let reader;
+const dialogOpen = ref(false);
 let abortController;
+let reader;
+const nfcActive = ref(false);
+const scanContent = ref("");
+const serialNumber = ref(localStorage.getItem("serialNumber"));
+const scanDialogOpen = ref(false);
+const year = ref("");
+const years = getYears().map((year) => `ON${year}`);
 
 onMounted(() => {
   if ("NDEFReader" in window) {

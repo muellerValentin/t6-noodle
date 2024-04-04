@@ -57,7 +57,6 @@
           <div>Nachname: {{ qrContent.lastname }}</div>
           <div>Rolle: {{ qrContent.role }}</div>
           <div>Seriennummer: {{ qrContent.serialNumber }}</div>
-          <!-- <div>ID: {{ qrContent.id }}</div> -->
         </q-card-section>
 
         <q-card-actions align="right">
@@ -102,19 +101,21 @@
 </template>
 
 <script setup>
+const bar = ref();
+const inMosbach = ref(false);
+
+const videoStream = ref(null);
+const videoPlaying = ref(false);
+const qrContent = ref(null);
+const dialogOpen = ref(false);
+let intervalId = null;
+const seamless = ref(true);
+
 import readQrCode from "src/helpers/qr/qr";
 import { confirmRegistration } from "src/helpers/firebase/firebase.js";
 import { onMounted, ref } from "vue";
 import { checkPosition } from "src/helpers/geolocation/geolocation.js";
 import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
-const bar = ref();
-const seamless = ref(true);
-const videoStream = ref(null);
-const videoPlaying = ref(false);
-const dialogOpen = ref(false);
-const qrContent = ref(null);
-let intervalId = null;
-const inMosbach = ref(false);
 
 onMounted(() => {
   (async () => {
@@ -157,33 +158,6 @@ async function toggleVideo() {
       intervalId = setInterval(detectCode, 1000);
     }
   }
-  //videoPlaying.value = !videoPlaying.value;
-}
-
-/*
-function toggleRegistration() {
-  console.log("Registrierung bestätigt");
-
-} */
-
-async function accessFile() {
-  // Get the root directory handle
-  const rootDirectory = await navigator.storage.getDirectory();
-
-  // Create or get a file named "example.txt"
-  const fileHandle = await rootDirectory.getFileHandle("example.txt", {
-    create: true,
-  });
-
-  // Write to the file
-  const writableStream = await fileHandle.createWritable();
-  await writableStream.write("Hello, OPFS!");
-  await writableStream.close();
-
-  // Read from the file
-  const file = await fileHandle.getFile();
-  const contents = await file.text();
-  console.log(contents); // Outputs the content of "example.txt"
 }
 
 async function toggleRegistration() {

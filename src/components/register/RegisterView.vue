@@ -217,6 +217,7 @@ import { addUser, firebaseInit } from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
 import QrGenerator from "../qr/QrGenerator.vue";
 import { getYears } from "src/helpers/util.js";
+
 const dataPassedToFirebase = ref(localStorage.getItem("dataPassedToFirebase"));
 const step = ref(+localStorage.getItem("step") || 1);
 const forename = ref(localStorage.getItem("forname"));
