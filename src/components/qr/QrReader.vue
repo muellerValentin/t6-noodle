@@ -1,4 +1,7 @@
 <template>
+  <q-banner v-if="checkPosition" inline-actions class="text-white bg-red">
+    You have lost connection to the internet. This app is offline.
+  </q-banner>
   <q-card class="q-ma-lg q-mt-xl">
     <q-btn
       class="q-mt-md"
@@ -100,6 +103,7 @@
 import readQrCode from "src/helpers/qr/qr";
 import { confirmRegistration } from "src/helpers/firebase/firebase.js";
 import { onMounted, ref } from "vue";
+import { checkPosition } from "src/helpers/geolocation/geolocation.js";
 import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
 
 const seamless = ref(true);
