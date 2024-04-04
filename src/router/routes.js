@@ -10,13 +10,19 @@ const routes = [
     redirect: "/login",
   },
   {
-    path: "/overview",
-    name: "Overview",
+    path: "/main",
+    name: "Main",
     meta: { role: "Alle" },
-    component: () => import("components/overview/OverviewView.vue"),
+
     component: () => import("layouts/MainLayout.vue"),
     children: [
       { path: "", component: () => import("pages/IndexPage.vue") },
+      {
+        path: "/overview",
+        name: "Overview",
+        meta: { role: "Alle" },
+        component: () => import("components/overview/OverviewView.vue"),
+      },
       {
         path: "/qr-test",
         name: "QrTest",

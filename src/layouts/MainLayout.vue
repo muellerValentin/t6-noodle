@@ -66,6 +66,14 @@ function logout() {
   Cookies.remove("user");
   router.push("/login");
 }
+
+router.beforeEach((to, from, next) => {
+  if (to.path === "/main") {
+    next("/overview");
+  } else {
+    next();
+  }
+});
 </script>
 
 <style>
