@@ -3,7 +3,9 @@
  * @author daniel
  */
 import { initializeApp } from "firebase/app";
+import { get } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
 import file from "./test.json";
+import { readFile, writeFile } from "src/helpers/util.js";
 import {
   setDoc,
   getDocs,
@@ -74,8 +76,11 @@ async function userLogin(id, hashedPassword) {
  * @author daniel
  */
 async function getCheckIns(startDate, endDate, course) {
-  console.log(course);
-  let mappingJson = file; // Angenommen, dies enthält alle Studierenden
+  const mappingFileHandle = await get("file");
+  const text = await readFile(mappingFileHandle);
+
+  let mappingJson = JSON.parse(text);
+  console.log(mappingJson);
   let presentStudents = [];
   let notPresentStudents = [];
   let docIds = [];
@@ -94,7 +99,9 @@ async function getCheckIns(startDate, endDate, course) {
   let presentSerialNos = [];
   querySnapshot.forEach((doc) => {
     presentSerialNos.push(doc.data().serialNo);
-    let student = mappingJson.find((s) => s.serialNo === doc.data().serialNo);
+    let student = mappingJson.find(
+      (s) => s.serialNumber === doc.data().serialNo
+    );
     if (student) {
       docIds.push(doc.id);
       presentStudents.push({

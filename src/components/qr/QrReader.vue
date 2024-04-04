@@ -113,6 +113,7 @@ const seamless = ref(true);
 
 import readQrCode from "src/helpers/qr/qr";
 import { confirmRegistration } from "src/helpers/firebase/firebase.js";
+import { readFile, writeFile } from "src/helpers/util.js";
 import { onMounted, ref } from "vue";
 import { checkPosition } from "src/helpers/geolocation/geolocation.js";
 import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
@@ -190,18 +191,6 @@ async function toggleRegistration() {
     videoPlaying.value = "qrCodeNotValidated";
     console.error("Fehler bei der Bestätigung der Registrierung:", error);
   }
-}
-
-async function readFile(handle) {
-  const file = await handle.getFile();
-  const text = await file.text();
-  return text;
-}
-
-async function writeFile(handle, text) {
-  const writable = await handle.createWritable();
-  await writable.write(text);
-  await writable.close();
 }
 
 async function saveOrUpdateFile(fileHandle) {

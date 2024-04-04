@@ -11,4 +11,16 @@ function getYears() {
   return possibleYears;
 }
 
-export { getYears };
+async function readFile(handle) {
+  const file = await handle.getFile();
+  const text = await file.text();
+  return text;
+}
+
+async function writeFile(handle, text) {
+  const writable = await handle.createWritable();
+  await writable.write(text);
+  await writable.close();
+}
+
+export { getYears, readFile, writeFile };

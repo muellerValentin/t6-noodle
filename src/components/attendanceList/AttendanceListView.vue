@@ -106,6 +106,7 @@
                 @click="deleteTimestamps"
                 label="Fortfahren"
                 color="primary"
+                to="/overview"
                 v-close-popup
               />
             </q-card-actions>
