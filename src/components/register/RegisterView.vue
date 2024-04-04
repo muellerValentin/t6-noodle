@@ -329,8 +329,7 @@ async function getDataFromClient() {
   if (role.value === 3) {
     console.log(await checkMasterPassword(masterPassword.value));
     if (await checkMasterPassword(masterPassword.value)) {
-      console.log("test");
-      // addUser(id, hashString(password.value), role.value.toString(), true);
+      addUser(id, hashString(password.value), role.value.toString(), true);
       step.value = 6;
     }
   } else {

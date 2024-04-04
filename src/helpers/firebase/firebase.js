@@ -78,9 +78,7 @@ async function userLogin(id, hashedPassword) {
 async function getCheckIns(startDate, endDate, course) {
   const mappingFileHandle = await get("file");
   const text = await readFile(mappingFileHandle);
-
   let mappingJson = JSON.parse(text);
-  console.log(mappingJson);
   let presentStudents = [];
   let notPresentStudents = [];
   let docIds = [];
@@ -116,7 +114,7 @@ async function getCheckIns(startDate, endDate, course) {
   mappingJson.forEach((student) => {
     if (
       student.course === course &&
-      !presentSerialNos.includes(student.serialNo)
+      !presentSerialNos.includes(student.serialNumber)
     ) {
       notPresentStudents.push({
         forename: student.forename,
@@ -128,6 +126,7 @@ async function getCheckIns(startDate, endDate, course) {
   return { presentStudents, notPresentStudents, docIds };
 }
 async function deleteDocs(docIds) {
+  console.log(docIds);
   for (let docId of docIds) {
     console.log(docId);
     await deleteDoc(doc(getFirestore(firebaseInit()), "attendance", docId));
