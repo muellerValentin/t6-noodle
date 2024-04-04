@@ -4,7 +4,7 @@
     Es wird gerade geprüft, ob Sie sich in Mosbach befinden. Ist dies nicht der
     Fall, wird der Inhalt der Seite nicht laden.
   </q-banner>
-  <q-card v-else class="q-ma-lg q-mt-xl">
+  <q-card v-else class="card_outer q-ma-lg q-mt-xl">
     <q-btn
       class="q-mt-md"
       to="/overview"
@@ -15,8 +15,7 @@
       icon="arrow_back"
       label="zurück"
     />
-    <q-card>
-      <div></div>
+    <q-card class="card_inner">
       <q-skeleton
         v-if="!videoPlaying"
         @click="toggleVideo"
@@ -235,12 +234,21 @@ async function saveOrUpdateFile(fileHandle) {
 </script>
 
 <style scoped>
+.card_outer {
+  max-width: 500px;
+  aspect-ratio: 1/1;
+  margin: 0 auto;
+}
+.card_inner {
+  width: 100%;
+  height: 100%;
+}
 .camera-icon-container {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100%;
+  height: 100% !important;
   background-color: #d1d1d1;
   border-radius: 2px;
 }
