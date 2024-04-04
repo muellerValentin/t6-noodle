@@ -153,10 +153,10 @@ async function confirmRegistration(id) {
     if (data.verified === false) {
       await updateDoc(docRef, { verified: true });
     } else {
-      throw new Error("User is already verified");
+      console.log("User is already verified");
     }
   } else {
-    throw new Error("User does not exist");
+    console.error("User does not exist");
   }
 }
 

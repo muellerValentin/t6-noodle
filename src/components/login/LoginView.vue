@@ -132,30 +132,20 @@ const router = useRouter();
 const nameRules = ref([(v) => !!v || "Name is required"]);
 
 async function login() {
-  const userCookie = Cookies.get("user");
-  if (userCookie) {
-    //@ToDo: Not pushing to overview ervery time
-    console.log("Cookie gefunden");
-    const user = JSON.parse(decodeURIComponent(userCookie));
-    router.push({ name: "Overview" });
-  } else {
-    const id = hashString(forename.value + lastname.value + password.value);
-    const correctCredentials = await userLogin(id, hashString(password.value));
-    console.log(correctCredentials);
-    if (correctCredentials) {
-      Cookies.set(
-        "user",
-        JSON.stringify({ id: id, role: correctCredentials }),
-        {
-          expires: 7,
-        }
-      );
+  Cookies.remove("user");
 
-      router.push({ name: "Overview" });
-      console.log("Login successful");
-    } else {
-      Cookies.remove("user");
-    }
+  const id = hashString(forename.value + lastname.value + password.value);
+  const correctCredentials = await userLogin(id, hashString(password.value));
+  console.log(correctCredentials);
+  if (correctCredentials) {
+    Cookies.set("user", JSON.stringify({ id: id, role: correctCredentials }), {
+      expires: 7,
+    });
+
+    router.push({ name: "Overview" });
+    console.log("Login successful");
+  } else {
+    Cookies.remove("user");
   }
 }
 
