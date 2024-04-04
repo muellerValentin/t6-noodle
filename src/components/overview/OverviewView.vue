@@ -127,7 +127,7 @@ author: @daniel.vollmer, @lorenz.lederer (design), @marius.möldner (design)
               text-color="black"
               color="yellow"
               label="Zum Feature"
-              to="/qr-test"
+              to="/qr-scan"
             />
           </div>
         </div>
@@ -160,7 +160,7 @@ author: @daniel.vollmer, @lorenz.lederer (design), @marius.möldner (design)
 /**
  * IMPORTS
  */
-import { readCookie } from "../../utils/cookie";
+import { readCookie } from "../../helpers/util.js";
 import { onMounted, ref } from "vue";
 
 /**

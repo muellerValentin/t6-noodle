@@ -3,6 +3,8 @@
  * @author daniel.vollmer, valentin.müller, luca.breisch, lorenz.lederer, marius.möldner
  */
 
+import Cookies from "js-cookie";
+
 /**
  * Function for getting possible course-years, e.g. ON21, ON22, ON23
  * @returns {Array} possibleYears - Array of possible course-years

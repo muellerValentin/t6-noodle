@@ -27,8 +27,8 @@ const routes = [
         component: () => import("components/overview/OverviewView.vue"),
       },
       {
-        path: "/qr-test",
-        name: "QrTest",
+        path: "/qr-scan",
+        name: "QrScan",
         meta: { role: "Sekretariat" },
         component: () => import("components/qr/QrReader.vue"),
       },
@@ -48,8 +48,8 @@ const routes = [
     ],
   },
   {
-    path: "/register",
-    name: "Register",
+    path: "/registration",
+    name: "Registration",
     meta: { role: "Alle" },
     component: () => import("components/register/RegisterView.vue"),
   },

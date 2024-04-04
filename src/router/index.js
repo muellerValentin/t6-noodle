@@ -6,7 +6,7 @@ import {
   createWebHashHistory,
 } from "vue-router";
 import routes from "./routes";
-import { readCookie } from "src/utils/cookie";
+import { readCookie } from "src/helpers/util.js";
 
 export default route(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER

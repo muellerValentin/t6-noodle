@@ -102,7 +102,7 @@ author: @valentin.müller, @lorenz.lederer (design), @daniel.vollmer
                   <div class="q-mt-lg">
                     <div class="q-mt-sm">
                       Sie haben keinen Account?
-                      <router-link class="text-primary" to="/register"
+                      <router-link class="text-primary" to="/registration"
                         >Registrieren</router-link
                       >
                     </div>
