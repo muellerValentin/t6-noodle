@@ -117,6 +117,8 @@ import { onMounted, ref } from "vue";
 import { checkPosition } from "src/helpers/geolocation/geolocation.js";
 import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
 
+const testStream = ref();
+
 onMounted(() => {
   (async () => {
     bar.value.start();
@@ -129,8 +131,12 @@ onMounted(() => {
 async function detectCode() {
   const test = await readQrCode(videoStream.value, true);
   console.log(test);
+
   if (test) {
-    videoStream.value.pause();
+    testStream.value.getTracks().forEach((track) => {
+      track.stop();
+    });
+
     videoPlaying.value = "qrCodeDetected";
     qrContent.value = test;
     console.log("qrContent:" + qrContent.value);
@@ -141,7 +147,6 @@ async function detectCode() {
 
 async function toggleVideo() {
   if (videoPlaying.value === true) {
-    console.log("test");
     clearInterval(intervalId);
   } else {
     videoPlaying.value = true;
@@ -153,6 +158,7 @@ async function toggleVideo() {
         audio: false,
       };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      testStream.value = stream;
       videoStream.value.srcObject = stream;
       videoStream.value.play();
       intervalId = setInterval(detectCode, 1000);
