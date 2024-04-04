@@ -173,11 +173,8 @@ const isInstallable = ref(false);
 const deferredPrompt = ref(null);
 onMounted(() => {
   window.addEventListener("beforeinstallprompt", (e) => {
-    // Prevent the mini-infobar from appearing on mobile
     e.preventDefault();
-    // Save the event so it can be triggered later.
     deferredPrompt.value = e;
-    // Update UI to notify the user they can install the PWA
     isInstallable.value = true;
   });
 });

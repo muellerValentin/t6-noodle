@@ -42,12 +42,12 @@ function firebaseInit() {
   return app;
 }
 
-async function addUser(id, passwordHash, role) {
+async function addUser(id, passwordHash, role, verified) {
   await setDoc(doc(getFirestore(firebaseInit()), "users", id), {
     id: id,
     password: passwordHash,
     role: role,
-    verified: false,
+    verified: verified || false,
   });
 }
 
@@ -93,7 +93,7 @@ async function getCheckIns(startDate, endDate, course) {
     attendenceCollection,
     where("checkInTime", ">=", Timestamp.fromDate(startDate)),
     where("checkInTime", "<=", Timestamp.fromDate(endDate)),
-    where("course", "==", course)
+    where("course", "==", hashString(course))
   );
   const querySnapshot = await getDocs(q);
   let presentSerialNos = [];
@@ -181,6 +181,25 @@ async function recordAttendance(serialNumber, course) {
   });
 }
 
+async function checkMasterPassword(promptedMasterPw) {
+  const docRef = doc(
+    getFirestore(firebaseInit()),
+    "masterpasswords",
+    "masterpassword_on"
+  );
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    if (hashString(promptedMasterPw) == data.masterpassword) {
+      console.log("Same");
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return false;
+}
+
 export {
   firebaseInit,
   addUser,
@@ -190,4 +209,5 @@ export {
   getDatesWithAttendenceData,
   confirmRegistration,
   recordAttendance,
+  checkMasterPassword,
 };

@@ -129,6 +129,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { exportFile, useQuasar } from "quasar";
 import hashString from "src/helpers/hashing/hashing.js";
 import {
   getCheckIns,
@@ -199,7 +200,7 @@ async function getAttendenceListFromFirestore() {
   await getCheckIns(
     new Date(dateForQuery + "T00:00:00.000Z"),
     new Date(dateForQuery + "T23:59:59.999Z"),
-    hashString(year.value)
+    year.value
   ).then((result) => {
     numberOfPresent.value = result.presentStudents.length;
     numberOfNotPresent.value = result.notPresentStudents.length;
@@ -212,6 +213,52 @@ async function getAttendenceListFromFirestore() {
 }
 
 async function deleteTimestamps() {
+  // exportTable();
   await deleteDocs(docsToDelete);
+}
+
+const $q = useQuasar();
+
+function wrapCsvValue(val, formatFn, row) {
+  let formatted = formatFn !== void 0 ? formatFn(val, row) : val;
+  formatted =
+    formatted === void 0 || formatted === null ? "" : String(formatted);
+  formatted = formatted.split('"').join('""');
+  // Uncomment the next two lines to escape new lines for Excel
+  // .split('\n').join('\\n')
+  // .split('\r').join('\\r')
+  return `"${formatted}"`;
+}
+
+function exportTable() {
+  console.log(notPresentColumns);
+  const content = [
+    notPresentColumns.value.map((col) => wrapCsvValue(col.label)),
+  ]
+    .concat(
+      notPresentRows.value.map((row) =>
+        notPresentColumns.value
+          .map((col) =>
+            wrapCsvValue(
+              typeof col.field === "function"
+                ? col.field(row)
+                : row[col.field === void 0 ? col.name : col.field],
+              col.format,
+              row
+            )
+          )
+          .join(",")
+      )
+    )
+    .join("\r\n");
+
+  const status = exportFile("table-export.csv", content, "text/csv");
+  if (status !== true) {
+    $q.notify({
+      message: "Browser denied file download...",
+      color: "negative",
+      icon: "warning",
+    });
+  }
 }
 </script>

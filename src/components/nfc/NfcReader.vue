@@ -31,7 +31,7 @@
         :disabled="!year"
       />
       <q-btn
-        class="nfcActive"
+        class="nfcActive q-mt-sm"
         v-if="nfcActive"
         color="red"
         label="NFC deaktivieren"

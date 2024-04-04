@@ -88,7 +88,10 @@
         icon="nfc"
         :done="step > 3"
       >
-        <p>Scannen Sie ihren Studierendenausweis per NFC ein:</p>
+        <p>
+          Scannen Sie ihren Studierendenausweis per NFC ein: (auf das Textfeld
+          klicken und Tag an das Endgerät halten)
+        </p>
 
         <q-input
           @click="scanNFC"
@@ -185,17 +188,6 @@
         <div v-if="dataPassedToFirebase">
           <QrGenerator :qr-code-content="dataForQrCode" />
         </div>
-
-        <q-stepper-navigation>
-          <q-btn color="primary" label="Finish" />
-          <q-btn
-            flat
-            @click="step = 4"
-            color="primary"
-            label="Back"
-            class="q-ml-sm"
-          />
-        </q-stepper-navigation>
       </q-step>
       <q-step
         :name="6"
@@ -204,7 +196,7 @@
       >
         Sie wurden erfolgreich authenifiziert.
         <q-stepper-navigation>
-          <q-btn color="green" label="Finish" />
+          <q-btn to="/login" color="green" label="Fertig" />
         </q-stepper-navigation>
       </q-step>
     </q-stepper>
@@ -213,11 +205,14 @@
 <script setup>
 import { doc, onSnapshot, getFirestore } from "firebase/firestore";
 import { ref, onMounted } from "vue";
-import { addUser, firebaseInit } from "src/helpers/firebase/firebase.js";
+import {
+  addUser,
+  firebaseInit,
+  checkMasterPassword,
+} from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
 import QrGenerator from "../qr/QrGenerator.vue";
 import { getYears } from "src/helpers/util.js";
-
 const dataPassedToFirebase = ref(localStorage.getItem("dataPassedToFirebase"));
 const step = ref(+localStorage.getItem("step") || 1);
 const forename = ref(localStorage.getItem("forname"));
@@ -324,29 +319,31 @@ async function openDialog() {
   }
 }
 
-// Jahrgangsauswahl / Spezifische Informationen
-console.log(getYears());
-
 /**
  * Function for getting possible course-years, e.g. ON21, ON22, ON23
  * @author daniel
  */
 
-function getDataFromClient() {
-  if (role.value === 3) {
-    //Sekretariat
-  } else {
-  }
-  localStorage.setItem("forname", forename.value);
-  localStorage.setItem("lastname", lastname.value);
-  localStorage.setItem("password", password.value);
-  localStorage.setItem("role", role.value);
-  localStorage.setItem("serialNumber", serialNumber.value);
-  localStorage.setItem("year", year.value);
+async function getDataFromClient() {
   id = hashString(forename.value + lastname.value + password.value);
-  addUser(id, hashString(password.value), role.value.toString());
-  dataPassedToFirebase.value = true;
-  dataForQrCode.value = `{
+  if (role.value === 3) {
+    console.log(await checkMasterPassword(masterPassword.value));
+    if (await checkMasterPassword(masterPassword.value)) {
+      console.log("test");
+      // addUser(id, hashString(password.value), role.value.toString(), true);
+      step.value = 6;
+    }
+  } else {
+    localStorage.setItem("forname", forename.value);
+    localStorage.setItem("lastname", lastname.value);
+    localStorage.setItem("password", password.value);
+    localStorage.setItem("role", role.value);
+    localStorage.setItem("serialNumber", serialNumber.value);
+    localStorage.setItem("year", year.value);
+
+    addUser(id, hashString(password.value), role.value.toString());
+    dataPassedToFirebase.value = true;
+    dataForQrCode.value = `{
   "forename": "${forename.value}",
   "lastname": "${lastname.value}",
   "role": ${role.value},
@@ -354,17 +351,20 @@ function getDataFromClient() {
   "serialNumber": "${serialNumber.value}",
   "id": "${id}"
 }`;
-  unsub = onSnapshot(doc(getFirestore(firebaseInit()), "users", id), (doc) => {
-    console.log(doc.data().verified);
-    if (doc.data().verified) {
-      step.value = 6;
-      localStorage.setItem("step", step.value);
-    }
-  });
-  localStorage.setItem("dataPassedToFirebase", dataPassedToFirebase.value);
-  localStorage.setItem("dataForQrCode", dataForQrCode.value);
-  step.value = 5;
-  localStorage.setItem("step", step.value);
+    unsub = onSnapshot(
+      doc(getFirestore(firebaseInit()), "users", id),
+      (doc) => {
+        if (doc.data().verified) {
+          step.value = 6;
+          localStorage.setItem("step", step.value);
+        }
+      }
+    );
+    localStorage.setItem("dataPassedToFirebase", dataPassedToFirebase.value);
+    localStorage.setItem("dataForQrCode", dataForQrCode.value);
+    step.value = 5;
+    localStorage.setItem("step", step.value);
+  }
 }
 </script>
 
