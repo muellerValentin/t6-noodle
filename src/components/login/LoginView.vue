@@ -113,6 +113,22 @@
       </div>
     </div>
   </q-card>
+
+  <q-dialog v-model="falseCredentials">
+    <q-card>
+      <q-card-section class="row items-center">
+        <q-icon class="q-mr-sm" name="warning" />
+        <div class="text-h6">Falsche Anmeldedaten</div>
+      </q-card-section>
+      <q-card-section>
+        Die eingegebenen Anmeldedaten sind nicht korrekt. Bitte versuchen Sie es
+        erneut.
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn flat label="Schließen" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -121,11 +137,12 @@ import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import { userLogin } from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
-const seamless = ref(true);
 
+const seamless = ref(true);
 const forename = ref();
 const lastname = ref();
 const password = ref();
+const falseCredentials = ref();
 const isPwd = ref(true);
 const router = useRouter();
 
@@ -137,6 +154,7 @@ async function login() {
   const id = hashString(forename.value + lastname.value + password.value);
   const correctCredentials = await userLogin(id, hashString(password.value));
   console.log(correctCredentials);
+
   if (correctCredentials) {
     Cookies.set("user", JSON.stringify({ id: id, role: correctCredentials }), {
       expires: 7,
@@ -144,8 +162,10 @@ async function login() {
 
     router.push({ name: "Overview" });
     console.log("Login successful");
+    falseCredentials.value = false;
   } else {
     Cookies.remove("user");
+    falseCredentials.value = true;
   }
 }
 
