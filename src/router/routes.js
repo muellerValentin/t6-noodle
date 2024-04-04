@@ -8,6 +8,12 @@ const routes = [
   {
     path: "/",
     redirect: "/login",
+  },
+  {
+    path: "/overview",
+    name: "Overview",
+    meta: { role: "Alle" },
+    component: () => import("components/overview/OverviewView.vue"),
     component: () => import("layouts/MainLayout.vue"),
     children: [
       { path: "", component: () => import("pages/IndexPage.vue") },
@@ -29,12 +35,6 @@ const routes = [
         name: "NfcScan",
         meta: { role: "Dozierende" },
         component: () => import("components/nfc/NfcReader.vue"),
-      },
-      {
-        path: "/overview",
-        name: "Overview",
-        meta: { role: "Alle" },
-        component: () => import("components/overview/OverviewView.vue"),
       },
     ],
   },
