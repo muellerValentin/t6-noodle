@@ -4,6 +4,7 @@
     Es wird gerade geprüft, ob Sie sich in Mosbach befinden. Ist dies nicht der
     Fall, wird der Inhalt der Seite nicht laden.
   </q-banner>
+
   <q-card v-else class="q-ma-lg q-mt-xl">
     <q-btn
       class="q-mt-md"
@@ -15,6 +16,7 @@
       icon="arrow_back"
       label="zurück"
     />
+
     <q-card>
       <div></div>
       <q-skeleton
@@ -65,7 +67,7 @@
             label="Abbrechen"
             color="primary"
             v-close-popup
-            @click="videoPlaying === 'qrCodeNotValidated'"
+            @click="videoPlaying = 'qrCodeNotValidated'"
           />
           <q-btn
             flat
@@ -109,6 +111,7 @@ const videoPlaying = ref(false);
 const qrContent = ref(null);
 const dialogOpen = ref(false);
 let intervalId = null;
+const alert = ref(false);
 const seamless = ref(true);
 
 import readQrCode from "src/helpers/qr/qr";
@@ -177,6 +180,7 @@ async function toggleRegistration() {
         saveOrUpdateFile(fileHandleOrUndefined);
         return;
       }
+
       const [fileHandle] = await window.showOpenFilePicker();
       await set("file", fileHandle);
       saveOrUpdateFile(fileHandle);
@@ -184,8 +188,6 @@ async function toggleRegistration() {
     } catch (error) {
       alert(error.name, error.message);
     }
-
-    saveOrUpdateFile();
     console.log("Registrierung bestätigt");
   } catch (error) {
     videoPlaying.value = "qrCodeNotValidated";
@@ -208,7 +210,7 @@ async function writeFile(handle, text) {
 async function saveOrUpdateFile(fileHandle) {
   try {
     const handle = fileHandle;
-    let existingData = {};
+    let existingData = [];
     try {
       const text = await readFile(handle);
       existingData = JSON.parse(text);
@@ -219,7 +221,7 @@ async function saveOrUpdateFile(fileHandle) {
       );
     }
     let updatedData = [];
-    if (existingData) {
+    if (existingData.length > 0) {
       for (let entry of existingData) {
         updatedData.push(entry);
       }

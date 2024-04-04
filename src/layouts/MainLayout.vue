@@ -26,11 +26,7 @@
             id="info"
             @click="alert = true"
           />
-          <q-dialog
-            backdrop-filter="blur(4px) saturate(150%)"
-            v-model="alert"
-            :position="position"
-          >
+          <q-dialog backdrop-filter="blur(4px) saturate(150%)" v-model="alert">
             <q-card style="width: 350px">
               <q-linear-progress :value="1" color="primary" />
 
