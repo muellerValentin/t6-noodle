@@ -156,7 +156,7 @@ async function detectCode() {
       track.stop();
     });
     videoPlaying.value = "qrCodeDetected";
-    qrContent.value = test;
+    qrContent.value = canReadQrCode;
     dialogOpen.value = true;
     // Stop the interval for scanning qr code because a qr code was detected
     clearInterval(intervalId);
