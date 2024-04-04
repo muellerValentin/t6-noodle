@@ -1,17 +1,26 @@
-function checkPosition() {
+// Konvertiere getCurrentPosition in eine Funktion, die ein Promise zurückgibt
+function getPosition() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+}
+
+async function checkPosition() {
   if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      // Ruft isInMosbach mit den aktuellen Koordinaten auf
-      if (isInMosbach(position.coords.latitude, position.coords.longitude)) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+    try {
+      const position = await getPosition();
+      return isInMosbach(position.coords.latitude, position.coords.longitude);
+    } catch (error) {
+      console.error("Fehler beim Abrufen der Position", error);
+      return false; // oder passenderweise den Fehler weiterleiten
+    }
   } else {
+    console.log("Geolocation ist nicht verfügbar.");
     return false;
   }
 }
+
+// Beispiel für den Aufruf der checkPosition Funktion
 
 function isInMosbach(lat, lng) {
   // Definiere die geographischen Grenzen von Mosbach ungefähr

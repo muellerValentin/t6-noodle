@@ -1,8 +1,10 @@
 <template>
-  <q-banner v-if="checkPosition" inline-actions class="text-white bg-red">
-    You have lost connection to the internet. This app is offline.
+  <q-ajax-bar ref="bar" position="bottom" color="accent" size="10px" />
+  <q-banner v-if="!inMosbach" class="text-white bg-red">
+    Es wird gerade geprüft, ob Sie sich in Mosbach befinden. Ist dies nicht der
+    Fall, wird der Inhalt der Seite nicht laden.
   </q-banner>
-  <q-card class="q-ma-lg q-mt-xl">
+  <q-card v-else class="q-ma-lg q-mt-xl">
     <q-btn
       class="q-mt-md"
       to="/overview"
@@ -105,13 +107,23 @@ import { confirmRegistration } from "src/helpers/firebase/firebase.js";
 import { onMounted, ref } from "vue";
 import { checkPosition } from "src/helpers/geolocation/geolocation.js";
 import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
-
+const bar = ref();
 const seamless = ref(true);
 const videoStream = ref(null);
 const videoPlaying = ref(false);
 const dialogOpen = ref(false);
 const qrContent = ref(null);
 let intervalId = null;
+const inMosbach = ref(false);
+
+onMounted(() => {
+  (async () => {
+    bar.value.start();
+    const result = await checkPosition();
+    bar.value.stop();
+    inMosbach.value = result;
+  })();
+});
 
 async function detectCode() {
   const test = await readQrCode(videoStream.value, true);
