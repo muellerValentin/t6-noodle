@@ -1,3 +1,7 @@
+<!-- 
+description: Login view for the user
+author: @valentin.müller, @lorenz.lederer (design), @daniel.vollmer  
+ -->
 <template>
   <q-card class="q-ma-lg q-mt-xl">
     <q-dialog v-if="isInstallable" v-model="seamless" seamless position="top">
@@ -10,9 +14,7 @@
             <div class="text-weight-bold">Noodle</div>
             <div class="text-grey">App installieren</div>
           </div>
-
           <q-space />
-
           <q-btn color="primary" @click="installPWA">Install</q-btn>
         </q-card-section>
       </q-card>
@@ -132,12 +134,18 @@
 </template>
 
 <script setup>
+/**
+ * IMPORTS
+ */
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import { userLogin } from "src/helpers/firebase/firebase.js";
 import hashString from "src/helpers/hashing/hashing.js";
 
+/**
+ * VARIABLES
+ */
 const seamless = ref(true);
 const forename = ref();
 const lastname = ref();
@@ -145,21 +153,44 @@ const password = ref();
 const falseCredentials = ref();
 const isPwd = ref(true);
 const router = useRouter();
-
 const nameRules = ref([(v) => !!v || "Name is required"]);
+const isInstallable = ref(false);
+const deferredPrompt = ref(null);
 
+/**
+ * HOOKS
+ */
+onMounted(() => {
+  /**
+   * Check if the app is installable
+   * @author lorenz.lederer
+   */
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt.value = e;
+    isInstallable.value = true;
+  });
+});
+
+/**
+ * FUNCTIONS
+ */
+
+/**
+ * Login function for user with session management via cookies.
+ * @author valentin.müller
+ */
 async function login() {
   Cookies.remove("user");
-
   const id = hashString(forename.value + lastname.value + password.value);
+  // Check if the user credentials are correct
   const correctCredentials = await userLogin(id, hashString(password.value));
   console.log(correctCredentials);
-
   if (correctCredentials) {
     Cookies.set("user", JSON.stringify({ id: id, role: correctCredentials }), {
       expires: 7,
     });
-
+    // Redirect to the overview page
     router.push({ name: "Overview" });
     console.log("Login successful");
     falseCredentials.value = false;
@@ -169,19 +200,13 @@ async function login() {
   }
 }
 
-const isInstallable = ref(false);
-const deferredPrompt = ref(null);
-onMounted(() => {
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt.value = e;
-    isInstallable.value = true;
-  });
-});
-
+/**
+ * Function to install the PWA
+ * @returns {Promise<void>}
+ * @author daniel.vollmer, lorenz.lederer
+ */
 async function installPWA() {
   if (deferredPrompt.value) {
-    // Show the install prompt
     deferredPrompt.value.prompt();
     const { outcome } = await deferredPrompt.value.userChoice;
     if (outcome === "accepted") {

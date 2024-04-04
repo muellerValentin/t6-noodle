@@ -1,3 +1,7 @@
+/**
+ * This file contains all routes for the application.
+ * @see https://router.vuejs.org/
+ */
 const routes = [
   {
     path: "/login",
@@ -16,7 +20,6 @@ const routes = [
 
     component: () => import("layouts/MainLayout.vue"),
     children: [
-      { path: "", component: () => import("pages/IndexPage.vue") },
       {
         path: "/overview",
         name: "Overview",
@@ -49,20 +52,13 @@ const routes = [
     name: "Register",
     meta: { role: "Alle" },
     component: () => import("components/register/RegisterView.vue"),
-
-    // Diese Route verwendet nicht das MainLayout, wodurch die Registrierungsseite ein eigenständiges Layout hat.
   },
   {
     path: "/access-denied",
     name: "AccessDenied",
     meta: { role: "Alle" },
     component: () => import("components/accessDenied/AccessDeniedView.vue"),
-
-    // Diese Route verwendet nicht das MainLayout, wodurch die Registrierungsseite ein eigenständiges Layout hat.
   },
-
-  // Always leave this as last one,firebase deploy
-  // but you can also remove it
   {
     path: "/:catchAll(.*)*",
     name: "ErrorNotFound",

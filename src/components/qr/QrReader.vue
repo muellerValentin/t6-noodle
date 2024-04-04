@@ -1,3 +1,7 @@
+<!-- 
+description: QR code reader for the registration of the users. Used in the registration process.
+author: @daniel.vollmer, @valentin.müller, @luca.breisch (design)
+ -->
 <template>
   <q-ajax-bar ref="bar" position="bottom" color="accent" size="10px" />
   <q-banner v-if="!inMosbach" class="text-white bg-red">
@@ -100,17 +104,9 @@
 </template>
 
 <script setup>
-const bar = ref();
-const inMosbach = ref(false);
-
-const videoStream = ref(null);
-const videoPlaying = ref(false);
-const qrContent = ref(null);
-const dialogOpen = ref(false);
-let intervalId = null;
-const alert = ref(false);
-const seamless = ref(true);
-
+/**
+ * IMPORTS
+ */
 import readQrCode from "src/helpers/qr/qr";
 import { confirmRegistration } from "src/helpers/firebase/firebase.js";
 import { readFile, writeFile } from "src/helpers/util.js";
@@ -118,8 +114,23 @@ import { onMounted, ref } from "vue";
 import { checkPosition } from "src/helpers/geolocation/geolocation.js";
 import { get, set } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
 
-const testStream = ref();
+/**
+ * VARIABLES
+ */
+const bar = ref();
+const inMosbach = ref(false);
+const videoStream = ref(null);
+const videoPlaying = ref(false);
+const qrContent = ref(null);
+const dialogOpen = ref(false);
+let intervalId = null;
+const alert = ref(false);
+const seamless = ref(true);
+const videoStreamForAborting = ref();
 
+/**
+ * HOOKS
+ */
 onMounted(() => {
   (async () => {
     bar.value.start();
@@ -129,23 +140,33 @@ onMounted(() => {
   })();
 });
 
-async function detectCode() {
-  const test = await readQrCode(videoStream.value, true);
-  console.log(test);
+/**
+ * FUNCTIONS
+ */
 
-  if (test) {
-    testStream.value.getTracks().forEach((track) => {
+/**
+ * Detects the QR code from the video stream and stops the video stream if a QR code is detected.
+ * @author daniel.vollmer
+ */
+async function detectCode() {
+  const canReadQrCode = await readQrCode(videoStream.value, true);
+  if (canReadQrCode) {
+    // Stop the video stream because a qr code was detected
+    videoStreamForAborting.value.getTracks().forEach((track) => {
       track.stop();
     });
-
     videoPlaying.value = "qrCodeDetected";
     qrContent.value = test;
-    console.log("qrContent:" + qrContent.value);
     dialogOpen.value = true;
+    // Stop the interval for scanning qr code because a qr code was detected
     clearInterval(intervalId);
   }
 }
 
+/**
+ * Toggles the video stream and starts the interval for detecting the qr code.
+ * @author valentin.müller
+ */
 async function toggleVideo() {
   if (videoPlaying.value === true) {
     clearInterval(intervalId);
@@ -159,7 +180,7 @@ async function toggleVideo() {
         audio: false,
       };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      testStream.value = stream;
+      videoStreamForAborting.value = stream;
       videoStream.value.srcObject = stream;
       videoStream.value.play();
       intervalId = setInterval(detectCode, 1000);
@@ -167,20 +188,24 @@ async function toggleVideo() {
   }
 }
 
+/**
+ * Function for toggling the registration of the user.
+ * The function confirms the registration of the user and triggers the writing of the mapping file.
+ * @author daniel.vollmer, valentin.müller
+ */
 async function toggleRegistration() {
   const id = qrContent.value.id;
   try {
     await confirmRegistration(id);
-    //accessFile().catch(console.error);
     try {
       const fileHandleOrUndefined = await get("file");
       if (fileHandleOrUndefined) {
         saveOrUpdateFile(fileHandleOrUndefined);
         return;
       }
-
       const [fileHandle] = await window.showOpenFilePicker();
       await set("file", fileHandle);
+      // used for the mapping file
       saveOrUpdateFile(fileHandle);
       console.log(`Stored file handle for "${fileHandle.name}" in IndexedDB.`);
     } catch (error) {
@@ -193,6 +218,11 @@ async function toggleRegistration() {
   }
 }
 
+/**
+ * Saves or updates the mapping file with the qr code content.
+ * @param fileHandle
+ * @author daniel.vollmer
+ */
 async function saveOrUpdateFile(fileHandle) {
   try {
     const handle = fileHandle;
@@ -200,7 +230,6 @@ async function saveOrUpdateFile(fileHandle) {
     try {
       const text = await readFile(handle);
       existingData = JSON.parse(text);
-      console.log(existingData);
     } catch (error) {
       console.log(
         "Die ausgewählte Datei konnte nicht gelesen werden oder ist leer. Ein neuer Inhalt wird erstellt."
@@ -208,12 +237,12 @@ async function saveOrUpdateFile(fileHandle) {
     }
     let updatedData = [];
     if (existingData.length > 0) {
+      // Add existing data to the updated data
       for (let entry of existingData) {
         updatedData.push(entry);
       }
     }
     updatedData.push(qrContent.value);
-    console.log(updatedData);
     await writeFile(handle, JSON.stringify(updatedData, null, 2));
     console.log("Datei erfolgreich aktualisiert.");
   } catch (error) {

@@ -1,3 +1,7 @@
+<!-- 
+description: Main layout for the application
+author: @daniel.vollmer, @valentin.müller, @marius.möldner , @lorenz.lederer (design)
+ -->
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>

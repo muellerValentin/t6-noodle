@@ -1,3 +1,7 @@
+<!-- 
+description: Overview view for the user with role-based content
+author: @daniel.vollmer, @lorenz.lederer (design), @marius.möldner (design)
+ -->
 <template>
   <div class="q-ma-lg q-mt-xl">
     <q-card v-if="!showCarousel">
@@ -153,14 +157,22 @@
 </template>
 
 <script setup>
-import Cookies from "js-cookie";
+/**
+ * IMPORTS
+ */
+import { readCookie } from "../../utils/cookie";
 import { onMounted, ref } from "vue";
+
+/**
+ * VARIABLES
+ */
 const slide = ref("init");
-const lorem = ref(
-  "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo."
-);
 const role = ref();
 const showCarousel = ref(false);
+
+/**
+ * HOOKS
+ */
 init();
 onMounted(() =>
   setTimeout(() => {
@@ -168,27 +180,16 @@ onMounted(() =>
   }, 1000)
 );
 
+/**
+ * FUNCTIONS
+ */
+
+/**
+ * Getting the cookies and the user-role from the cookies
+ * @author lorenz.lederer
+ */
 function init() {
   const cookie = readCookie();
   role.value = cookie.role;
-}
-
-//CODE DUPLICATE - INDEX:JS
-function readCookie() {
-  const userCookie = Cookies.get("user");
-  if (userCookie) {
-    console.log("Cookie gefunden");
-    const user = parseCookie(userCookie);
-    return user;
-  } else {
-    //router.push("/login"); // Leiten Sie den Benutzer zur Login-Seite um, wenn kein Cookie gefunden wird
-  }
-}
-
-function parseCookie(cookie) {
-  const decodedCookie = decodeURIComponent(cookie);
-  const parsedCookie = JSON.parse(decodedCookie);
-  console.log(parsedCookie);
-  return parsedCookie;
 }
 </script>

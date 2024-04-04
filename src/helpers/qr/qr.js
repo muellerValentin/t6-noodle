@@ -1,7 +1,7 @@
 /**
  * Helper file for doing all qr-code related stuff.
  * @see https://developer.mozilla.org/en-US/docs/Web/API/BarcodeDetector
- * @author daniel
+ * @author daniel.vollmer
  */
 
 /**

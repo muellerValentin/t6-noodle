@@ -1,10 +1,9 @@
 /**
  * Everything related to firebase is here
- * @author daniel
+ * @author daniel.vollmer, valentin.müller, lorenz.lederer
  */
 import { initializeApp } from "firebase/app";
 import { get } from "https://unpkg.com/idb-keyval@5.0.2/dist/esm/index.js";
-import file from "./test.json";
 import { readFile, writeFile } from "src/helpers/util.js";
 import {
   setDoc,
@@ -22,10 +21,9 @@ import {
 import {} from "firebase/firestore";
 import hashString from "../hashing/hashing";
 
-const db = getFirestore(firebaseInit());
-
 /**
  * Function for initializing the connection to Firebase
+ * @returns {Object} app - The firebase app object
  * @author daniel
  */
 function firebaseInit() {
@@ -37,11 +35,18 @@ function firebaseInit() {
     messagingSenderId: "427139124965",
     appId: "1:427139124965:web:0f3ca972889e350ebf8e0c",
   };
-
   const app = initializeApp(firebaseConfig);
   return app;
 }
 
+/**
+ * Function for adding a user to the Firebase database.
+ * @param {sha512} id
+ * @param {sha512} passwordHash
+ * @param {int} role
+ * @param {boolean} verified (only for secratary after typing in master password)
+ * @author daniel.vollmer
+ */
 async function addUser(id, passwordHash, role, verified) {
   await setDoc(doc(getFirestore(firebaseInit()), "users", id), {
     id: id,
@@ -51,6 +56,13 @@ async function addUser(id, passwordHash, role, verified) {
   });
 }
 
+/**
+ * Fucntion for logging in a user and authenticating the password against the firestore.
+ * @param {sha512} id
+ * @param {sha512} hashedPassword
+ * @returns boolean
+ * @author valentin.müller
+ */
 async function userLogin(id, hashedPassword) {
   const docRef = doc(getFirestore(firebaseInit()), "users", id);
   const docSnap = await getDoc(docRef);
@@ -58,19 +70,16 @@ async function userLogin(id, hashedPassword) {
     const data = docSnap.data();
     if (data.verified === true && data.password === hashedPassword) {
       return data.role;
-      console.log("User is verified and password is correct");
     } else {
       return false;
-      console.log("User is not verified or password is incorrect");
     }
   } else {
     return false;
-    console.log("User does not exist");
   }
 }
 
 /**
- * Getting the "attendence list" from Firebase
+ * Getting the "attendence list" from Firebase.
  * @param {Date} startDate
  * @param {Date} endDate
  * @author daniel
@@ -82,7 +91,6 @@ async function getCheckIns(startDate, endDate, course) {
   let presentStudents = [];
   let notPresentStudents = [];
   let docIds = [];
-
   const attendenceCollection = collection(
     getFirestore(firebaseInit()),
     "attendance"
@@ -95,8 +103,10 @@ async function getCheckIns(startDate, endDate, course) {
   );
   const querySnapshot = await getDocs(q);
   let presentSerialNos = [];
+  //Getting present students
   querySnapshot.forEach((doc) => {
     presentSerialNos.push(doc.data().serialNo);
+    //Fetching the data from firestore with the mapping file
     let student = mappingJson.find(
       (s) => s.serialNumber === doc.data().serialNo
     );
@@ -111,6 +121,7 @@ async function getCheckIns(startDate, endDate, course) {
       });
     }
   });
+  //Getting list of not present students
   mappingJson.forEach((student) => {
     if (
       student.course === course &&
@@ -125,6 +136,12 @@ async function getCheckIns(startDate, endDate, course) {
 
   return { presentStudents, notPresentStudents, docIds };
 }
+
+/**
+ * Deleting the documents from the already checked from attendance from the Firestore
+ * @param {Array} docIds - Array of document ids to delete
+ * @author lorenz.lederer
+ */
 async function deleteDocs(docIds) {
   console.log(docIds);
   for (let docId of docIds) {
@@ -133,6 +150,11 @@ async function deleteDocs(docIds) {
   }
 }
 
+/**
+ * Getting the dates with attendence data from the Firestore, so the calendar can be marked with the attendence data.
+ * @returns {Array} datesWithAttendence - Array of dates with attendence data
+ * @author daniel.vollmer
+ */
 async function getDatesWithAttendenceData() {
   let datesWithAttendence = [];
   const querySnapshot = await getDocs(
@@ -149,7 +171,12 @@ async function getDatesWithAttendenceData() {
   return datesWithAttendence;
 }
 
-// Confirm Registration
+/**
+ * Confirming the registration of a user in the database.
+ * @param {sha512} id - The id of the user to confirm the registration for
+ * @returns {boolean} - True if the registration was successful, false if the user is already verified or does not exist
+ * @author valentin.müller
+ */
 async function confirmRegistration(id) {
   const docRef = doc(getFirestore(firebaseInit()), "users", id);
   const docSnap = await getDoc(docRef);
@@ -166,13 +193,17 @@ async function confirmRegistration(id) {
   }
 }
 
-// Attendence recording
-
+/**
+ * Function for recording the attendance of a student in the database.
+ * @param {string} serialNumber - The serial number of the student
+ * @param {string} course - The course the student is attending
+ * @returns {boolean} - True if the attendance was recorded successfully, false if not
+ * @author valentin.müller
+ */
 async function recordAttendance(serialNumber, course) {
   const db = getFirestore(firebaseInit());
   const timestamp = Timestamp.now();
   const docRef = doc(db, "attendance", timestamp.toString());
-
   await setDoc(docRef, {
     serialNo: serialNumber,
     course: hashString(course),
@@ -180,6 +211,12 @@ async function recordAttendance(serialNumber, course) {
   });
 }
 
+/**
+ * Function for checking the master password
+ * @param {string} promptedMasterPw - The master password the user entered
+ * @returns {boolean} - True if the master password is correct, false if not
+ * @author daniel.vollmer
+ */
 async function checkMasterPassword(promptedMasterPw) {
   const docRef = doc(
     getFirestore(firebaseInit()),
@@ -190,7 +227,6 @@ async function checkMasterPassword(promptedMasterPw) {
   if (docSnap.exists()) {
     const data = docSnap.data();
     if (hashString(promptedMasterPw) == data.masterpassword) {
-      console.log("Same");
       return true;
     } else {
       return false;

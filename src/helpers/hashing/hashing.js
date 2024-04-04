@@ -1,6 +1,6 @@
 /**
  * This file contains all utilities for all hashing needed in Noodle.
- * @author daniel
+ * @author daniel.vollmer
  */
 import { sha512 } from "js-sha512";
 

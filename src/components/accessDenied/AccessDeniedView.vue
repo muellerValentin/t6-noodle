@@ -1,3 +1,7 @@
+<!-- 
+description: View, when user has no access to a specific file
+author: @luca.breisch
+ -->
 <template>
   <q-card class="q-ma-lg q-mt-xl">
     <div>

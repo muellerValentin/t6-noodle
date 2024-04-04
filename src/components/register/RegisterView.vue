@@ -1,3 +1,7 @@
+<!-- 
+description: Registration view for the user with role-based content
+author: @daniel.vollmer, @valentin.müller, @marius.möldner , @lorenz.lederer (design)
+ -->
 <template>
   <div class="q-ma-lg q-mt-xl">
     <q-stepper v-model="step" vertical color="primary" animated>
@@ -80,6 +84,7 @@
         </q-stepper-navigation>
       </q-step>
 
+      <!-- only devices which support nfc show this step (for project evaluation every device show this step) -->
       <!-- v-if="role === 1 && nfcSupported" -->
       <q-step
         v-if="role === 1"
@@ -203,6 +208,9 @@
   </div>
 </template>
 <script setup>
+/**
+ * IMPORTS
+ */
 import { doc, onSnapshot, getFirestore } from "firebase/firestore";
 import { ref, onMounted } from "vue";
 import {
@@ -213,6 +221,10 @@ import {
 import hashString from "src/helpers/hashing/hashing.js";
 import QrGenerator from "../qr/QrGenerator.vue";
 import { getYears } from "src/helpers/util.js";
+
+/**
+ * VARIABLES
+ */
 const dataPassedToFirebase = ref(localStorage.getItem("dataPassedToFirebase"));
 const step = ref(+localStorage.getItem("step") || 1);
 const forename = ref(localStorage.getItem("forname"));
@@ -226,32 +238,6 @@ const serialNo = ref();
 const dataForQrCode = ref(localStorage.getItem("dataForQrCode"));
 const nameRules = ref([(v) => !!v || "Name is required"]);
 const years = getYears().map((year) => `ON${year}`);
-const checkboxes = ref(
-  getYears().map((year) => ({ label: `ON${year}`, model: ref(false) }))
-);
-
-let id = hashString(
-  localStorage.getItem("forname") +
-    localStorage.getItem("lastname") +
-    localStorage.getItem("password")
-);
-
-let unsub;
-onMounted(() => {
-  if (id) {
-    unsub = onSnapshot(
-      doc(getFirestore(firebaseInit()), "users", id),
-      (doc) => {
-        console.log(doc.data().verified);
-        if (doc.data().verified) {
-          step.value = 6;
-          localStorage.setItem("step", step.value);
-        }
-      }
-    );
-  }
-});
-
 const options = [
   {
     label: "Studierender",
@@ -266,27 +252,56 @@ const options = [
     value: 3,
   },
 ];
-
+const checkboxes = ref(
+  getYears().map((year) => ({ label: `ON${year}`, model: ref(false) }))
+);
+let id = hashString(
+  localStorage.getItem("forname") +
+    localStorage.getItem("lastname") +
+    localStorage.getItem("password")
+);
+let unsub;
 // NFC
 const nfcSupported = ref(false);
 const dialogOpen = ref(false);
 const dialogMessage = ref("");
 const scanDialogOpen = ref(false);
 const scanContent = ref("");
-
 const serialNumber = ref(localStorage.getItem("serialNumber"));
-
 let reader;
 
+/**
+ * HOOKS
+ */
 onMounted(() => {
+  if (id) {
+    // check if user is already verified
+    unsub = onSnapshot(
+      doc(getFirestore(firebaseInit()), "users", id),
+      (doc) => {
+        console.log(doc.data().verified);
+        if (doc.data().verified) {
+          step.value = 6;
+          localStorage.setItem("step", step.value);
+        }
+      }
+    );
+  }
   if ("NDEFReader" in window) {
     nfcSupported.value = true;
     reader = new NDEFReader();
   }
 });
 
+/**
+ * FUNCTIONS
+ */
+
+/**
+ * Function for scanning the NFC-Tag
+ * @author valentin.müller
+ */
 async function scanNFC() {
-  console.log("test");
   try {
     await reader.scan();
     reader.onreading = ({ serialNumber: readSerialNumber }) => {
@@ -299,49 +314,31 @@ async function scanNFC() {
   }
 }
 
-async function openDialog() {
-  dialogMessage.value = nfcSupported.value
-    ? "Start NFC-Scan"
-    : "Your device does not support a NFC-Scan!";
-  dialogOpen.value = true;
-
-  if (nfcSupported.value) {
-    try {
-      await reader.scan();
-      reader.onreading = ({ serialNumber: readSerialNumber }) => {
-        scanContent.value = `Seriennummer: ${readSerialNumber}`;
-        serialNumber.value = `${readSerialNumber}`;
-        scanDialogOpen.value = true;
-      };
-    } catch (error) {
-      console.log("Error: " + error);
-    }
-  }
-}
-
 /**
- * Function for getting possible course-years, e.g. ON21, ON22, ON23
- * @author daniel
+ * Function for getting the data from the client and sending it to the firebase
+ * @author daniel.vollmer, marius.möldner
  */
-
 async function getDataFromClient() {
   id = hashString(forename.value + lastname.value + password.value);
+  // Check if the user is a secretary
   if (role.value === 3) {
     console.log(await checkMasterPassword(masterPassword.value));
     if (await checkMasterPassword(masterPassword.value)) {
       addUser(id, hashString(password.value), role.value.toString(), true);
       step.value = 6;
     }
+    // Check if the user is a student or a lecturer
   } else {
+    // Save the data in the local storage
     localStorage.setItem("forname", forename.value);
     localStorage.setItem("lastname", lastname.value);
     localStorage.setItem("password", password.value);
     localStorage.setItem("role", role.value);
     localStorage.setItem("serialNumber", serialNumber.value);
     localStorage.setItem("year", year.value);
-
     addUser(id, hashString(password.value), role.value.toString());
     dataPassedToFirebase.value = true;
+    // Data for the qr code
     dataForQrCode.value = `{
   "forename": "${forename.value}",
   "lastname": "${lastname.value}",
@@ -350,6 +347,7 @@ async function getDataFromClient() {
   "serialNumber": "${serialNumber.value}",
   "id": "${id}"
 }`;
+    // Check if the user is already verified (realtime-update)
     unsub = onSnapshot(
       doc(getFirestore(firebaseInit()), "users", id),
       (doc) => {

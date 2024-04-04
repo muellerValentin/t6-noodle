@@ -1,3 +1,7 @@
+<!-- 
+description: NFC scanner for scanning student IDs
+author: @valentin.müller, @luca.breisch (design)
+ -->
 <template>
   <q-page class="flex flex-center flex-direction-column">
     <h2 class="text-h5">NFC-Scanner</h2>
@@ -79,10 +83,16 @@
 </template>
 
 <script setup>
+/**
+ * IMPORTS
+ */
 import { ref, onMounted } from "vue";
 import { recordAttendance } from "src/helpers/firebase/firebase.js";
 import { getYears } from "src/helpers/util.js";
 
+/**
+ * VARIABLES
+ */
 const nfcSupported = ref(false);
 const dialogMessage = ref("");
 const dialogOpen = ref(false);
@@ -95,6 +105,9 @@ const scanDialogOpen = ref(false);
 const year = ref("");
 const years = getYears().map((year) => `ON${year}`);
 
+/**
+ * HOOKS
+ */
 onMounted(() => {
   if ("NDEFReader" in window) {
     nfcSupported.value = true;
@@ -102,6 +115,15 @@ onMounted(() => {
   }
 });
 
+/**
+ * FUNCTIONS
+ */
+
+/**
+ * Opens the dialog to start the NFC scan
+ * @returns {Promise<void>}
+ * @author valentin.müller
+ */
 async function openDialog() {
   dialogMessage.value = nfcSupported.value
     ? "NFC-Scan starten?"
@@ -110,14 +132,15 @@ async function openDialog() {
 
   if (nfcSupported.value) {
     try {
+      //needed for stopping the NFC scan
       abortController = new AbortController();
+      // Start the NFC scan
       await reader.scan({ signal: abortController.signal });
       nfcActive.value = true;
       reader.onreading = async ({ serialNumber: readSerialNumber }) => {
         scanContent.value = `Seriennummer: ${readSerialNumber}`;
         serialNumber.value = `${readSerialNumber}`;
         scanDialogOpen.value = true;
-
         try {
           if (readSerialNumber) {
             await recordAttendance(readSerialNumber, year.value);
@@ -132,6 +155,11 @@ async function openDialog() {
   }
 }
 
+/**
+ * Deactivates the NFC scan
+ * @returns {Promise<void>}
+ * @author luca.breisch
+ */
 async function deactivateNfc() {
   abortController.abort();
   nfcActive.value = false;

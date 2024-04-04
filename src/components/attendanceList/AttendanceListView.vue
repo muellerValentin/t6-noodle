@@ -1,3 +1,7 @@
+<!-- 
+description: Shows the attendance list and allows the user to delete the attendance data
+author: @daniel.vollmer, @marius.möldner (design)
+ -->
 <template>
   <div class="q-ma-lg q-mt-xl">
     <q-stepper v-model="step" vertical color="primary" animated>
@@ -128,15 +132,21 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+/**
+ * IMPORTS
+ */
+import { onMounted, ref } from "vue";
 import { exportFile, useQuasar } from "quasar";
-import hashString from "src/helpers/hashing/hashing.js";
 import {
   getCheckIns,
   deleteDocs,
   getDatesWithAttendenceData,
 } from "src/helpers/firebase/firebase.js";
 import { getYears } from "src/helpers/util.js";
+
+/**
+ * VARIABLES
+ */
 const years = getYears().map((year) => `ON${year}`);
 const confirm = ref(false);
 const year = ref();
@@ -146,11 +156,7 @@ const numberOfPresent = ref(0);
 const numberOfNotPresent = ref(0);
 const notPresentRows = ref();
 const options = ref();
-init();
-async function init() {
-  options.value = await getDatesWithAttendenceData();
-}
-
+const $q = useQuasar();
 const notPresentColumns = [
   {
     name: "forename",
@@ -195,6 +201,31 @@ const columns = [
 const rows = ref();
 let docsToDelete = [];
 
+/**
+ * HOOKS
+ */
+onMounted(() => {
+  init();
+});
+
+/**
+ * FUNCTIONS
+ */
+
+/**
+ * Function for initializing the calendar component
+ * @author marius.möldner
+ */
+async function init() {
+  options.value = await getDatesWithAttendenceData();
+}
+
+/**
+ * Function for getting the attendance list from firestore.
+ * The function gets the attendance timestamps for the selected date, year and course.
+ * @returns {Promise<void>}
+ * @author daniel.vollmer
+ */
 async function getAttendenceListFromFirestore() {
   const dateForQuery = date.value.replaceAll("/", "-");
   await getCheckIns(
@@ -208,28 +239,39 @@ async function getAttendenceListFromFirestore() {
     notPresentRows.value = result.notPresentStudents;
     docsToDelete = result.docIds;
   });
-
   step.value = 3;
 }
 
+/**
+ * Function for deleting the attendance timestamps from firestore.
+ * @author marius.möldner
+ */
 async function deleteTimestamps() {
-  // exportTable();
   await deleteDocs(docsToDelete);
 }
 
-const $q = useQuasar();
-
+/**
+ * Function for wrapping a value in a csv format.
+ * @param val
+ * @param formatFn
+ * @param row
+ * @returns {string}
+ * @author marius.möldner
+ */
 function wrapCsvValue(val, formatFn, row) {
   let formatted = formatFn !== void 0 ? formatFn(val, row) : val;
   formatted =
     formatted === void 0 || formatted === null ? "" : String(formatted);
   formatted = formatted.split('"').join('""');
-  // Uncomment the next two lines to escape new lines for Excel
-  // .split('\n').join('\\n')
-  // .split('\r').join('\\r')
   return `"${formatted}"`;
 }
 
+/**
+ * Function for exporting the table to a csv file.
+ * The function exports the table to a csv file with the name table-export.csv.
+ * @returns {Promise<void>}
+ * @author marius.möldner
+ */
 function exportTable() {
   console.log(notPresentColumns);
   const content = [
